@@ -170,7 +170,7 @@ export function generateAIInsight(
         : ['No critical alerts at this time'],
     riskFactors: ['Age-related risk factors', 'Lifestyle factors', 'Family history if documented'],
     medicationIssues: allPrescriptions.length > 0 ? ['Review medication adherence at next visit'] : ['No current medications'],
-    chronicConditions: [...new Set(diagnoses.slice(0, 3))],
+    chronicConditions: Array.from(new Set(diagnoses.slice(0, 3))),
     recommendations: [
       'Regular follow-up as scheduled',
       'Monitor symptoms and report changes',
