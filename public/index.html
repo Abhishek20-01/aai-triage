@@ -3,523 +3,1349 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AarogyaAI — AI-Powered Diagnostic Triage</title>
+  <title>AarogyaAI — AI-Powered Diagnostic Triage for ABHA</title>
+  <meta name="description" content="AI-native diagnostic triage assistant leveraging Ayushman Bharat Digital Health Records to provide doctors with instant, relevant patient context.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #3b82f6;
-      --primary-dark: #2563eb;
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --primary-bg: #eef2ff;
+      --accent: #06b6d4;
       --bg: #f8fafc;
+      --bg-dark: #0f172a;
       --card: #ffffff;
       --text: #0f172a;
       --text-secondary: #64748b;
+      --text-muted: #94a3b8;
       --border: #e2e8f0;
+      --border-light: #f1f5f9;
       --critical: #ef4444;
+      --critical-bg: #fef2f2;
       --high: #f97316;
-      --medium: #fbbf24;
+      --high-bg: #fff7ed;
+      --medium: #eab308;
+      --medium-bg: #fffbeb;
       --low: #10b981;
+      --low-bg: #f0fdf4;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-lg: 16px;
     }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      overflow-x: hidden;
     }
 
-    /* Sidebar */
-    .sidebar {
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-fade-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .anim-slide-up { animation: slideUp 0.5s ease-out forwards; }
+    .anim-scale-in { animation: scaleIn 0.3s ease-out forwards; }
+    .delay-1 { animation-delay: 0.1s; opacity: 0; }
+    .delay-2 { animation-delay: 0.2s; opacity: 0; }
+    .delay-3 { animation-delay: 0.3s; opacity: 0; }
+    .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+    /* ===== NAVIGATION ===== */
+    .top-nav {
       position: fixed;
-      left: 0;
       top: 0;
-      width: 260px;
-      height: 100vh;
-      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      padding: 24px 0;
-      overflow-y: auto;
-      z-index: 100;
-      box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(226,232,240,0.8);
+      transition: all 0.3s;
     }
-
-    .logo {
-      padding: 0 24px 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 24px;
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
     }
-
-    .logo h1 {
-      font-size: 24px;
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 4s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+    }
+    .nav-logo-text {
+      font-size: 22px;
       font-weight: 800;
-      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
-    .logo p {
-      font-size: 11px;
-      color: #94a3b8;
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .nav-item {
+    .nav-links {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 24px;
-      color: #cbd5e1;
-      text-decoration: none;
-      transition: all 0.2s;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
+      gap: 4px;
     }
-
-    .nav-item:hover, .nav-item.active {
-      background: rgba(59, 130, 246, 0.1);
-      color: #3b82f6;
-    }
-
-    .nav-item.active {
-      border-left: 3px solid #3b82f6;
-    }
-
-    .nav-icon {
-      font-size: 20px;
-    }
-
-    .sidebar-footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 20px 24px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .doctor-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .doctor-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-
-    .doctor-details h4 {
-      font-size: 13px;
-      font-weight: 600;
-      color: #f1f5f9;
-    }
-
-    .doctor-details p {
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    /* Main Content */
-    .main {
-      margin-left: 260px;
-      min-height: 100vh;
-    }
-
-    .header {
-      background: white;
-      border-bottom: 1px solid var(--border);
-      padding: 24px 40px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header h2 {
-      font-size: 28px;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .header p {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .btn {
-      padding: 10px 20px;
+    .nav-link {
+      padding: 8px 16px;
       border-radius: 8px;
       font-size: 14px;
       font-weight: 500;
-      border: none;
+      color: var(--text-secondary);
       cursor: pointer;
       transition: all 0.2s;
+      border: none;
+      background: none;
+      font-family: inherit;
+    }
+    .nav-link:hover {
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+    .nav-link.active {
+      color: var(--primary);
+      background: var(--primary-bg);
+      font-weight: 600;
+    }
+    .nav-cta {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(79,70,229,0.4);
+    }
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* ===== HERO / LANDING ===== */
+    .hero {
+      padding-top: 64px;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+    .hero-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.05;
+      background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+    .hero-glow {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.3;
+    }
+    .hero-glow-1 {
+      width: 600px;
+      height: 600px;
+      background: #4f46e5;
+      top: -200px;
+      right: -100px;
+      animation: float 6s ease-in-out infinite;
+    }
+    .hero-glow-2 {
+      width: 400px;
+      height: 400px;
+      background: #06b6d4;
+      bottom: -100px;
+      left: -50px;
+      animation: float 8s ease-in-out infinite reverse;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 80px 40px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      min-height: calc(100vh - 64px);
+    }
+    .hero-text { max-width: 640px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(79,70,229,0.15);
+      border: 1px solid rgba(129,140,248,0.3);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #a5b4fc;
+      margin-bottom: 24px;
+    }
+    .hero-badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .hero-title {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: white;
+      margin-bottom: 24px;
+      letter-spacing: -1.5px;
+    }
+    .hero-title-gradient {
+      background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #22d3ee 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 4s ease infinite;
+    }
+    .hero-desc {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #94a3b8;
+      margin-bottom: 40px;
+      max-width: 540px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+    .btn-hero-primary {
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      box-shadow: 0 4px 20px rgba(79,70,229,0.4);
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 8px;
     }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(79,70,229,0.5);
+    }
+    .btn-hero-secondary {
+      padding: 14px 32px;
+      background: rgba(255,255,255,0.05);
       color: white;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      backdrop-filter: blur(10px);
+    }
+    .btn-hero-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.3);
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+    }
+    .hero-stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .hero-visual {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-mockup {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    .mockup-header {
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mockup-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .mockup-dot-red { background: #ef4444; }
+    .mockup-dot-yellow { background: #eab308; }
+    .mockup-dot-green { background: #10b981; }
+    .mockup-title {
+      margin-left: 12px;
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .mockup-body { padding: 24px; }
+    .mockup-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .mockup-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .mockup-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .mockup-card-title {
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .mockup-card-sub {
+      color: #64748b;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .mockup-alert {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .mockup-alert-text {
+      color: #fca5a5;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .mockup-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .mockup-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      width: 85%;
+    }
+    .mockup-score {
+      text-align: right;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .mockup-score-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: #ef4444;
+      line-height: 1;
+    }
+    .mockup-score-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    /* ===== MARKET SECTION ===== */
+    .market-section {
+      padding: 120px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
-
-    .btn-secondary {
-      background: white;
+    .section-header {
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto 64px;
+    }
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: var(--primary-bg);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
       color: var(--text);
+    }
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .market-card {
+      background: var(--card);
       border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      transition: all 0.3s;
+      cursor: default;
+    }
+    .market-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+      border-color: var(--primary-light);
+    }
+    .market-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .market-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .market-card-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .market-stat {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+      margin-top: 12px;
     }
 
-    .btn-secondary:hover {
-      background: var(--bg);
+    /* Problem Statement */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .problem-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      transition: all 0.3s;
+    }
+    .problem-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
+    }
+    .problem-card-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .problem-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .problem-card-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .problem-card-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .problem-card-list {
+      list-style: none;
+      margin-top: 16px;
+    }
+    .problem-card-list li {
+      padding: 8px 0 8px 24px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      position: relative;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .problem-card-list li:last-child { border-bottom: none; }
+    .problem-card-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
     }
 
-    /* Content */
-    .content {
-      padding: 32px 40px;
+    /* Competitive Table */
+    .competitive-section {
+      margin-bottom: 80px;
+    }
+    .competitive-table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    .competitive-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      font-size: 14px;
+    }
+    .competitive-table thead {
+      background: var(--bg-dark);
+    }
+    .competitive-table th {
+      padding: 16px 24px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .competitive-table td {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      line-height: 1.6;
+    }
+    .competitive-table tbody tr { transition: background 0.2s; }
+    .competitive-table tbody tr:hover { background: var(--border-light); }
+    .competitive-table tbody tr:last-child td { border-bottom: none; }
+    .competitive-highlight { background: var(--primary-bg) !important; }
+    .check-green { color: #10b981; font-weight: 700; }
+    .cross-red { color: #ef4444; font-weight: 700; }
+    .partial-yellow { color: #eab308; font-weight: 700; }
+
+    /* Roadmap Section */
+    .roadmap-timeline {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      padding-bottom: 20px;
+    }
+    .roadmap-card {
+      min-width: 280px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+    .roadmap-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .roadmap-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .roadmap-phase {
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .phase-current {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .phase-upcoming {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .phase-future {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    .roadmap-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .roadmap-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .roadmap-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .roadmap-items {
+      list-style: none;
+    }
+    .roadmap-items li {
+      padding: 6px 0 6px 20px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      position: relative;
+    }
+    .roadmap-items li::before {
+      content: "•";
+      position: absolute;
+      left: 4px;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .roadmap-items li.done::before {
+      content: "✓";
+      color: #10b981;
+    }
+    .roadmap-items li.done {
+      color: var(--text);
+      text-decoration: line-through;
+      opacity: 0.7;
     }
 
-    /* Stats Grid */
+    /* ===== DASHBOARD ===== */
+    .dashboard-section {
+      padding-top: 64px;
+      min-height: 100vh;
+      display: none;
+    }
+    .dashboard-section.active { display: block; }
+    .dashboard-layout {
+      display: flex;
+      min-height: calc(100vh - 64px);
+    }
+    .dashboard-sidebar {
+      width: 260px;
+      background: var(--bg-dark);
+      color: white;
+      padding: 24px 0;
+      position: fixed;
+      top: 64px;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      margin: 0 12px 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo h2 {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sidebar-logo p {
+      font-size: 10px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 2px;
+    }
+    .sidebar-nav {
+      list-style: none;
+      padding: 0 12px;
+    }
+    .sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 2px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+    .sidebar-nav-item:hover {
+      color: #e2e8f0;
+      background: rgba(255,255,255,0.05);
+    }
+    .sidebar-nav-item.active {
+      color: white;
+      background: rgba(79,70,229,0.2);
+      font-weight: 600;
+    }
+    .sidebar-nav-icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    .sidebar-section {
+      padding: 24px 20px 0;
+      margin-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 12px;
+      margin-bottom: 12px;
+    }
+    .sidebar-footer {
+      padding: 20px;
+      margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .sidebar-user-info h4 {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .sidebar-user-info p {
+      font-size: 11px;
+      color: #64748b;
+    }
+    .dashboard-main {
+      margin-left: 260px;
+      flex: 1;
+      min-height: 100vh;
+    }
+    .dashboard-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 64px;
+      z-index: 50;
+    }
+    .dashboard-header-left h2 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .dashboard-header-left p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .dashboard-header-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .dashboard-content {
+      padding: 32px;
+      max-width: 1400px;
+    }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
       margin-bottom: 32px;
     }
-
     .stat-card {
       background: white;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 24px;
       transition: all 0.3s;
       cursor: pointer;
     }
-
     .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
     }
-
-    .stat-header {
+    .stat-card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 16px;
     }
-
-    .stat-icon {
-      width: 48px;
-      height: 48px;
+    .stat-card-icon {
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 22px;
     }
-
-    .stat-value {
+    .stat-card-change {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .change-up {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .change-down {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .stat-card-value {
       font-size: 32px;
-      font-weight: 700;
-      color: var(--text);
+      font-weight: 800;
       line-height: 1;
+      margin-bottom: 4px;
     }
-
-    .stat-label {
+    .stat-card-label {
       font-size: 13px;
       color: var(--text-secondary);
-      margin-top: 8px;
       font-weight: 500;
     }
 
     /* Patient List */
-    .patient-list {
+    .patient-panel {
       background: white;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       overflow: hidden;
     }
-
-    .list-header {
+    .panel-header {
       padding: 20px 24px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
-    .list-header h3 {
+    .panel-header-title {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
     }
-
-    .search-box {
+    .panel-header-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .panel-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-btn {
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .filter-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+    .filter-btn.active {
+      background: var(--primary-bg);
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+    .search-input-wrap {
       position: relative;
     }
-
-    .search-box input {
+    .search-input {
       padding: 8px 16px 8px 36px;
       border: 1px solid var(--border);
       border-radius: 8px;
       font-size: 13px;
-      width: 280px;
+      width: 260px;
       font-family: inherit;
+      transition: all 0.2s;
+      background: var(--bg);
     }
-
-    .search-box::before {
-      content: "🔍";
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+      background: white;
+    }
+    .search-icon {
       position: absolute;
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
       font-size: 14px;
+      pointer-events: none;
     }
-
-    .patient-item {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
+    .patient-table { width: 100%; }
+    .patient-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 120px;
       gap: 16px;
+      align-items: center;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--border-light);
       cursor: pointer;
       transition: all 0.2s;
     }
-
-    .patient-item:last-child {
-      border-bottom: none;
+    .patient-row:last-child { border-bottom: none; }
+    .patient-row:hover { background: var(--bg); }
+    .patient-row-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--bg);
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--border);
     }
-
-    .patient-item:hover {
-      background: #f8fafc;
+    .patient-row-header:hover { background: var(--bg); }
+    .patient-cell-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-
-    .patient-avatar {
-      width: 48px;
-      height: 48px;
+    .patient-cell-avatar {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 13px;
       font-weight: 600;
-      font-size: 14px;
       flex-shrink: 0;
     }
-
-    .patient-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .patient-name {
+    .patient-cell-name-text {
       font-weight: 600;
       font-size: 14px;
-      margin-bottom: 4px;
     }
-
-    .patient-meta {
-      font-size: 12px;
+    .patient-cell-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .patient-cell {
+      font-size: 13px;
       color: var(--text-secondary);
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
     }
-
-    .urgency-badge {
+    .patient-cell-id {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .urgency-badge-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 4px 12px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      border: 1px solid;
     }
-
-    .urgency-critical {
-      background: #fef2f2;
+    .urgency-critical-sm {
+      background: var(--critical-bg);
       color: var(--critical);
-      border: 1px solid #fecaca;
+      border-color: #fecaca;
     }
-
-    .urgency-high {
-      background: #fff7ed;
+    .urgency-high-sm {
+      background: var(--high-bg);
       color: var(--high);
-      border: 1px solid #fed7aa;
+      border-color: #fed7aa;
+    }
+    .urgency-medium-sm {
+      background: var(--medium-bg);
+      color: #92400e;
+      border-color: #fde68a;
+    }
+    .urgency-low-sm {
+      background: var(--low-bg);
+      color: #065f46;
+      border-color: #bbf7d0;
     }
 
-    .urgency-medium {
-      background: #fffbeb;
-      color: var(--medium);
-      border: 1px solid #fde68a;
-    }
-
-    .urgency-low {
-      background: #f0fdf4;
-      color: var(--low);
-      border: 1px solid #bbf7d0;
-    }
-
-    /* Patient Detail */
-    .patient-detail {
+    /* ===== PATIENT DETAIL ===== */
+    .patient-detail-section {
+      padding-top: 64px;
+      min-height: 100vh;
       display: none;
     }
-
-    .patient-detail.active {
-      display: block;
+    .patient-detail-section.active { display: block; }
+    .detail-header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
+    .detail-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
     .back-btn {
-      margin-bottom: 24px;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.2s;
+      color: var(--text-secondary);
     }
-
-    .patient-header {
+    .back-btn:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+    .detail-header-title h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .detail-header-title p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .detail-header-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn-sm {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-sm:hover {
+      border-color: var(--primary-light);
+      background: var(--primary-bg);
+    }
+    .btn-sm-primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .btn-sm-primary:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+    .detail-content {
+      padding: 32px;
+      max-width: 1400px;
+    }
+    .detail-hero {
       background: white;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       padding: 32px;
       margin-bottom: 24px;
     }
-
-    .patient-header-top {
+    .detail-hero-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 24px;
     }
-
-    .patient-identity {
+    .detail-patient-identity {
       display: flex;
       gap: 20px;
       align-items: center;
     }
-
-    .patient-avatar-large {
+    .detail-avatar {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 32px;
       font-weight: 700;
+      box-shadow: 0 4px 12px rgba(79,70,229,0.3);
     }
-
-    .urgency-score {
-      text-align: right;
-    }
-
-    .urgency-score-label {
-      font-size: 12px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
-
-    .urgency-score-value {
-      font-size: 48px;
+    .detail-name {
+      font-size: 28px;
       font-weight: 800;
-      color: var(--critical);
+      margin-bottom: 8px;
+    }
+    .detail-meta-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+    .detail-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .urgency-score-card {
+      text-align: center;
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      border: 2px solid;
+    }
+    .urgency-score-card-critical {
+      background: var(--critical-bg);
+      border-color: #fecaca;
+    }
+    .urgency-score-card-high {
+      background: var(--high-bg);
+      border-color: #fed7aa;
+    }
+    .urgency-score-card-medium {
+      background: var(--medium-bg);
+      border-color: #fde68a;
+    }
+    .urgency-score-card-low {
+      background: var(--low-bg);
+      border-color: #bbf7d0;
+    }
+    .urgency-score-number {
+      font-size: 48px;
+      font-weight: 900;
       line-height: 1;
     }
-
+    .urgency-score-text {
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
     .urgency-score-max {
-      font-size: 14px;
-      color: var(--text-secondary);
+      font-size: 12px;
+      color: var(--text-muted);
     }
-
-    .patient-details-grid {
+    .detail-info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
     }
-
-    .detail-item {
+    .detail-info-item {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-
-    .detail-label {
+    .detail-info-label {
       font-size: 11px;
-      color: var(--text-secondary);
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      font-weight: 500;
     }
-
-    .detail-value {
+    .detail-info-value {
       font-size: 14px;
       font-weight: 600;
-      color: var(--text);
     }
 
-    /* Alert Section */
-    .alert-section {
-      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    /* Alert Banner */
+    .alert-banner {
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
       border: 2px solid #fecaca;
-      border-radius: 12px;
+      border-radius: var(--radius-lg);
       padding: 24px;
       margin-bottom: 24px;
     }
-
-    .alert-header {
+    .alert-banner-header {
       display: flex;
       align-items: center;
       gap: 12px;
       margin-bottom: 16px;
     }
-
-    .alert-icon {
-      font-size: 28px;
-    }
-
-    .alert-title {
+    .alert-banner-title {
       font-size: 18px;
       font-weight: 700;
       color: #991b1b;
     }
-
     .alert-item {
       background: white;
       border-left: 4px solid var(--critical);
@@ -527,305 +1353,244 @@
       border-radius: 8px;
       margin-bottom: 8px;
       font-size: 13px;
-      color: #991b1b;
+      color: #7f1d1d;
+      line-height: 1.6;
     }
+    .alert-item:last-child { margin-bottom: 0; }
 
-    /* AI Summary */
-    .ai-section {
+    /* Content Cards */
+    .content-card {
       background: white;
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 24px;
       margin-bottom: 24px;
     }
-
-    .section-title {
-      font-size: 18px;
+    .content-card-title {
+      font-size: 16px;
       font-weight: 700;
       margin-bottom: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-
-    .ai-summary {
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 16px;
+    .ai-summary-box {
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius);
+      padding: 20px;
       font-size: 14px;
-      line-height: 1.7;
-      color: #1e3a8a;
+      line-height: 1.8;
+      color: #1e1b4b;
     }
-
-    /* Two Column Layout */
-    .two-column {
+    .two-col {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 24px;
       margin-bottom: 24px;
     }
-
-    .info-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-    }
-
-    .info-card h3 {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-
     .info-list {
       list-style: none;
     }
-
     .info-list li {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
+      padding: 10px 0 10px 20px;
       font-size: 13px;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-light);
+      position: relative;
+      line-height: 1.6;
     }
-
-    .info-list li:last-child {
-      border-bottom: none;
-    }
-
+    .info-list li:last-child { border-bottom: none; }
     .info-list li::before {
       content: "▸";
+      position: absolute;
+      left: 0;
       color: var(--primary);
       font-weight: bold;
     }
 
     /* Recommendations */
-    .recommendations {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-    }
-
-    .recommendation-item {
+    .rec-item {
       display: flex;
       gap: 16px;
       padding: 16px;
-      background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      border: 1px solid #ddd6fe;
+      border-radius: var(--radius-sm);
       margin-bottom: 12px;
       align-items: flex-start;
+      transition: all 0.2s;
     }
-
-    .recommendation-number {
+    .rec-item:hover {
+      transform: translateX(4px);
+      box-shadow: var(--shadow-sm);
+    }
+    .rec-number {
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
       font-size: 14px;
+      font-weight: 700;
       flex-shrink: 0;
     }
-
-    .recommendation-text {
+    .rec-text {
       flex: 1;
       font-size: 13px;
-      line-height: 1.6;
+      line-height: 1.7;
+      color: var(--text);
     }
 
-    /* Visit History */
-    .visits-section {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 24px;
-    }
-
-    .visits-header {
-      padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .visits-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
+    /* Visits */
     .visit-card {
-      padding: 20px 24px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+    .visit-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .visit-card-header {
+      padding: 16px 20px;
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
-    }
-
-    .visit-card:last-child {
-      border-bottom: none;
-    }
-
-    .visit-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      align-items: center;
     }
-
-    .visit-type {
-      display: inline-block;
+    .visit-card-body {
+      padding: 20px;
+    }
+    .visit-type-badge {
+      display: inline-flex;
       padding: 4px 12px;
-      background: #dbeafe;
-      color: #1e40af;
-      border-radius: 20px;
+      background: var(--primary-bg);
+      color: var(--primary);
+      border-radius: 6px;
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-
-    .visit-date {
-      font-size: 12px;
-      color: var(--text-secondary);
-    }
-
     .visit-diagnosis {
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 12px 0 8px;
     }
-
     .visit-symptoms {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-bottom: 12px;
     }
-
-    .symptom-tag {
+    .symptom-chip {
       padding: 4px 10px;
-      background: #f1f5f9;
+      background: var(--bg);
+      border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .visit-details {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .detail-section {
-      margin-bottom: 20px;
-    }
-
-    .detail-section h4 {
       font-size: 12px;
-      font-weight: 600;
       color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 12px;
     }
-
     .vitals-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
+      margin-top: 16px;
     }
-
-    .vital-card {
-      background: #f8fafc;
-      padding: 12px;
-      border-radius: 8px;
+    .vital-box {
+      background: var(--bg);
       border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
     }
-
-    .vital-label {
+    .vital-box-label {
       font-size: 11px;
-      color: var(--text-secondary);
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: capitalize;
       margin-bottom: 4px;
     }
-
-    .vital-value {
+    .vital-box-value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .prescription-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .prescription-name {
       font-size: 14px;
       font-weight: 600;
+      color: #1e40af;
     }
-
-    /* Lab Results Table */
+    .prescription-detail {
+      font-size: 12px;
+      color: #3b82f6;
+      margin-top: 4px;
+    }
     .lab-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
     }
-
     .lab-table th {
       text-align: left;
       padding: 10px 12px;
-      background: #f8fafc;
-      font-weight: 600;
+      background: var(--bg);
       font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--text-secondary);
       border-bottom: 1px solid var(--border);
     }
-
     .lab-table td {
       padding: 12px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-light);
     }
-
-    .lab-table tr:hover {
-      background: #f8fafc;
-    }
-
-    .lab-status {
-      padding: 4px 10px;
+    .lab-table tbody tr:hover { background: var(--bg); }
+    .lab-badge {
+      display: inline-block;
+      padding: 3px 10px;
       border-radius: 12px;
       font-size: 11px;
       font-weight: 600;
-      display: inline-block;
     }
-
-    .lab-critical {
-      background: #fef2f2;
+    .lab-critical-badge {
+      background: var(--critical-bg);
       color: var(--critical);
     }
-
-    .lab-abnormal {
-      background: #fffbeb;
-      color: #b45309;
+    .lab-abnormal-badge {
+      background: var(--medium-bg);
+      color: #92400e;
+    }
+    .lab-normal-badge {
+      background: var(--low-bg);
+      color: #065f46;
     }
 
-    .lab-normal {
-      background: #f0fdf4;
-      color: var(--low);
-    }
-
-    /* Allergies */
-    .allergies-section {
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    /* Allergy Banner */
+    .allergy-banner {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
       border: 1px solid #fde68a;
-      border-radius: 12px;
+      border-radius: var(--radius);
       padding: 20px;
       margin-bottom: 24px;
     }
-
     .allergy-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 12px;
+      margin: 12px 0;
     }
-
     .allergy-tag {
       padding: 6px 14px;
       background: white;
@@ -835,12 +1600,11 @@
       color: #991b1b;
       font-weight: 500;
     }
-
-    .emergency-contact {
+    .emergency-box {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 10px;
+      padding: 10px 14px;
       background: white;
       border-radius: 8px;
       font-size: 13px;
@@ -849,56 +1613,52 @@
     }
 
     /* Consent Button */
-    .consent-btn {
+    .consent-trigger {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: var(--radius);
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
       margin-bottom: 24px;
+      font-family: inherit;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
     }
-
-    .consent-btn:hover {
+    .consent-trigger:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 8px 24px rgba(79,70,229,0.4);
     }
 
-    /* Consent Modal */
+    /* Modal */
     .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
+    .modal-overlay.open { display: flex; }
     .modal {
       background: white;
-      border-radius: 16px;
-      max-width: 700px;
+      border-radius: var(--radius-lg);
       width: 100%;
+      max-width: 720px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      box-shadow: var(--shadow-xl);
+      animation: scaleIn 0.2s ease-out;
     }
-
     .modal-header {
       padding: 24px;
       border-bottom: 1px solid var(--border);
@@ -906,166 +1666,147 @@
       justify-content: space-between;
       align-items: flex-start;
     }
-
     .modal-header h2 {
       font-size: 20px;
       font-weight: 700;
     }
-
     .modal-header p {
       font-size: 12px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       margin-top: 4px;
     }
-
     .modal-close {
-      background: none;
-      border: none;
-      font-size: 32px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      line-height: 1;
-      padding: 0;
       width: 32px;
       height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--bg);
+      font-size: 24px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 8px;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      line-height: 1;
     }
-
     .modal-close:hover {
-      background: var(--bg);
+      background: var(--border);
+      color: var(--text);
     }
-
-    .modal-body {
-      padding: 24px;
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
     }
-
-    .consent-info {
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-      border: 1px solid #bfdbfe;
-      border-radius: 12px;
+    .consent-info-box {
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius-sm);
       padding: 16px;
       margin-bottom: 24px;
     }
-
-    .consent-info h4 {
+    .consent-info-box h4 {
       font-size: 14px;
       font-weight: 600;
-      color: #1e3a8a;
+      color: #1e1b4b;
       margin-bottom: 8px;
     }
-
-    .consent-info p {
+    .consent-info-box p {
       font-size: 13px;
-      color: #1e40af;
-      line-height: 1.6;
+      color: #3730a3;
+      line-height: 1.7;
     }
-
-    .consent-item {
+    .consent-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 14px;
-      background: #f8fafc;
-      border-radius: 8px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
       margin-bottom: 8px;
       border: 1px solid var(--border);
     }
-
-    .consent-item-label {
+    .consent-row-label {
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
     }
-
-    .consent-item-desc {
+    .consent-row-desc {
       font-size: 11px;
-      color: var(--text-secondary);
+      color: var(--text-muted);
       margin-top: 2px;
     }
-
-    .consent-status {
+    .consent-status-badge {
       padding: 4px 12px;
       border-radius: 12px;
       font-size: 11px;
       font-weight: 600;
     }
-
-    .consent-active {
+    .consent-on {
       background: #dcfce7;
       color: #166534;
     }
-
-    .consent-inactive {
+    .consent-off {
       background: #fee2e2;
       color: #991b1b;
     }
-
-    .access-log {
+    .audit-log {
       margin-top: 24px;
     }
-
-    .access-log h4 {
+    .audit-log-title {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       margin-bottom: 12px;
     }
-
-    .log-entry {
+    .audit-entry {
       display: grid;
-      grid-template-columns: 120px 1fr auto;
+      grid-template-columns: 110px 1fr 130px;
       gap: 12px;
       padding: 10px 12px;
-      background: #f8fafc;
+      background: var(--bg);
       border-radius: 6px;
       margin-bottom: 6px;
       font-size: 12px;
       border: 1px solid var(--border);
     }
-
-    .log-date {
-      color: var(--text-secondary);
+    .audit-date {
+      color: var(--text-muted);
       font-family: monospace;
     }
-
-    .log-action {
+    .audit-action {
       color: var(--text);
     }
-
-    .log-ip {
-      color: var(--text-secondary);
+    .audit-ip {
+      color: var(--text-muted);
       font-family: monospace;
+      text-align: right;
     }
-
-    .compliance-box {
-      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    .compliance-note {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
       border: 1px solid #fde68a;
-      border-radius: 12px;
+      border-radius: var(--radius-sm);
       padding: 16px;
       margin-top: 24px;
     }
-
-    .compliance-box h4 {
+    .compliance-note h4 {
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 700;
       color: #92400e;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
-
-    .compliance-box ul {
+    .compliance-note ul {
       list-style: none;
       font-size: 12px;
       color: #a16207;
     }
-
-    .compliance-box li {
-      padding: 4px 0;
-      padding-left: 16px;
+    .compliance-note li {
+      padding: 4px 0 4px 20px;
       position: relative;
     }
-
-    .compliance-box li::before {
+    .compliance-note li::before {
       content: "✓";
       position: absolute;
       left: 0;
@@ -1073,674 +1814,1041 @@
       font-weight: bold;
     }
 
-    .modal-footer {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
+    /* ===== DOCS SECTION ===== */
+    .docs-section {
+      padding-top: 64px;
+      min-height: 100vh;
+      display: none;
+    }
+    .docs-section.active { display: block; }
+    .docs-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 48px 40px;
+    }
+    .docs-header {
+      margin-bottom: 48px;
+    }
+    .docs-header h1 {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .docs-header p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .docs-tabs {
       display: flex;
-      justify-content: flex-end;
-      gap: 12px;
+      gap: 4px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      width: fit-content;
+    }
+    .docs-tab {
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+    }
+    .docs-tab:hover { color: var(--text); }
+    .docs-tab.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .docs-content {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+    }
+    .docs-content h2 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .docs-content h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 32px 0 12px;
+    }
+    .docs-content p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+    .docs-content ul {
+      list-style: none;
+      margin: 16px 0;
+    }
+    .docs-content ul li {
+      padding: 8px 0 8px 24px;
+      position: relative;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .docs-content ul li:last-child { border-bottom: none; }
+    .docs-content ul li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+      font-weight: bold;
+    }
+    .docs-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+    }
+    .docs-content table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+    }
+    .docs-content table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light);
+      line-height: 1.6;
+    }
+    .docs-content table tr:hover { background: var(--bg); }
+    .docs-content strong { color: var(--text); }
+    .highlight-box {
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .highlight-box-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e1b4b;
+      margin-bottom: 8px;
+    }
+    .highlight-box p {
+      margin-bottom: 0;
     }
 
-    /* Responsive */
+    /* ===== FOOTER ===== */
+    .footer {
+      background: var(--bg-dark);
+      color: #94a3b8;
+      padding: 64px 40px 32px;
+    }
+    .footer-grid {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand h3 {
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 12px;
+    }
+    .footer-brand p {
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 360px;
+    }
+    .footer-col-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .footer-links {
+      list-style: none;
+    }
+    .footer-links li { margin-bottom: 8px; }
+    .footer-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: white; }
+    .footer-bottom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .market-grid { grid-template-columns: repeat(2, 1fr); }
+      .problem-grid { grid-template-columns: 1fr; }
+      .two-col { grid-template-columns: 1fr; }
+      .hero-content { grid-template-columns: 1fr; gap: 40px; }
+      .hero-visual { display: none; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 768px) {
-      .sidebar {
-        width: 100%;
-        position: relative;
-        height: auto;
-      }
-
-      .main {
-        margin-left: 0;
-      }
-
-      .header {
-        padding: 16px 20px;
-      }
-
-      .content {
-        padding: 20px;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .patient-header-top {
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .two-column {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .fade-in {
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-20px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .slide-in {
-      animation: slideIn 0.3s ease-out;
-    }
-
-    /* Loading */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 60px;
-    }
-
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+      .nav-container { padding: 0 20px; }
+      .hero-content { padding: 60px 20px; }
+      .hero-title { font-size: 36px; }
+      .market-section { padding: 80px 20px; }
+      .market-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .patient-row { grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px; }
+      .patient-row-header { display: none; }
+      .dashboard-sidebar { display: none; }
+      .dashboard-main { margin-left: 0; }
+      .dashboard-content { padding: 20px; }
+      .detail-content { padding: 20px; }
+      .docs-container { padding: 24px 20px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .section-title { font-size: 28px; }
     }
   </style>
 </head>
 <body>
-  <div id="app"></div>
+
+  <!-- ===== TOP NAVIGATION ===== -->
+  <nav class="top-nav" id="topNav">
+    <div class="nav-container">
+      <div class="nav-logo" onclick="navigateTo('landing')">
+        <div class="nav-logo-icon">🩺</div>
+        <span class="nav-logo-text">AarogyaAI</span>
+      </div>
+      <div class="nav-links">
+        <button class="nav-link" id="navLanding" onclick="navigateTo('landing')">Home</button>
+        <button class="nav-link" id="navMarket" onclick="navigateTo('market')">Market Research</button>
+        <button class="nav-link" id="navArchitecture" onclick="navigateTo('architecture')">Architecture</button>
+        <button class="nav-link" id="navDashboard" onclick="navigateTo('dashboard')">Dashboard</button>
+        <button class="nav-link" id="navDocs" onclick="navigateTo('docs')">Docs</button>
+        <button class="nav-cta" onclick="navigateTo('dashboard')">Launch App →</button>
+      </div>
+      <button class="mobile-menu-btn" onclick="alert('Use desktop for full experience')">☰</button>
+    </div>
+  </nav>
+
+  <!-- ===== LANDING / HERO ===== -->
+  <section class="section active" id="sectionLanding">
+    <div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-pattern"></div>
+      <div class="hero-glow hero-glow-1"></div>
+      <div class="hero-glow hero-glow-2"></div>
+      <div class="hero-content">
+        <div class="hero-text anim-fade-up">
+          <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            ABHA-Native Clinical Intelligence
+          </div>
+          <h1 class="hero-title">
+            From Fragmented Records to<br>
+            <span class="hero-title-gradient">Instant Clinical Context</span>
+          </h1>
+          <p class="hero-desc">
+            AarogyaAI is an AI-native diagnostic triage assistant that leverages Ayushman Bharat Digital Health Records to provide doctors with instant, relevant patient context before and during consultations.
+          </p>
+          <div class="hero-actions">
+            <button class="btn-hero-primary" onclick="navigateTo('dashboard')">
+              🚀 Explore Dashboard
+            </button>
+            <button class="btn-hero-secondary" onclick="navigateTo('market')">
+              📊 View Research
+            </button>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <div class="hero-stat-value">55Cr+</div>
+              <div class="hero-stat-label">ABHA IDs Created</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value">1.5L+</div>
+              <div class="hero-stat-label">PHCs in India</div>
+            </div>
+            <div class="hero-stat">
+              <div class="hero-stat-value">&lt;15%</div>
+              <div class="hero-stat-label">Doctors Using Digital Records</div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual anim-fade-up delay-2">
+          <div class="hero-mockup">
+            <div class="mockup-header">
+              <div class="mockup-dot mockup-dot-red"></div>
+              <div class="mockup-dot mockup-dot-yellow"></div>
+              <div class="mockup-dot mockup-dot-green"></div>
+              <span class="mockup-title">AarogyaAI — Clinical Dashboard</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-card">
+                <div class="mockup-card-header">
+                  <div class="mockup-avatar">RK</div>
+                  <div>
+                    <div class="mockup-card-title">Rajesh Kumar</div>
+                    <div class="mockup-card-sub">52y, Male • ABHA-0001</div>
+                  </div>
+                </div>
+                <div class="mockup-alert">
+                  <div class="mockup-alert-text">
+                    ⚠️ HbA1c 8.4% — critically above target (&lt;7.0%). Rapid deterioration from 7.8% in 2 weeks.
+                  </div>
+                </div>
+                <div class="mockup-bar">
+                  <div class="mockup-bar-fill"></div>
+                </div>
+              </div>
+              <div class="mockup-card">
+                <div class="mockup-card-header">
+                  <div class="mockup-avatar" style="background: linear-gradient(135deg, #ef4444, #f97316);">MA</div>
+                  <div>
+                    <div class="mockup-card-title">Mohammed Ali</div>
+                    <div class="mockup-card-sub">65y, Male • ABHA-0003</div>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: #fca5a5; line-height: 1.5;">
+                  Acute STEMI confirmed. Troponin 15.2 ng/mL. Requires immediate cardiac care.
+                </div>
+              </div>
+              <div class="mockup-score">
+                <div class="mockup-score-value">8.5</div>
+                <div class="mockup-score-label">Average Urgency Score</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Market Stats -->
+    <div class="market-section">
+      <div class="section-header anim-fade-up">
+        <div class="section-label">📈 Market Opportunity</div>
+        <h2 class="section-title">India's Digital Health Revolution</h2>
+        <p class="section-subtitle">
+          With 55 crore+ ABHA IDs and 1.5 lakh+ PHCs, India is poised for a digital health transformation. Yet, less than 15% of doctors use digital records during consultations.
+        </p>
+      </div>
+
+      <div class="market-grid">
+        <div class="market-card anim-slide-up delay-1">
+          <div class="market-card-icon" style="background: #dbeafe; color: #3b82f6;">🏥</div>
+          <div class="market-card-title">ABHA Ecosystem</div>
+          <div class="market-card-text">
+            55 crore+ ABHA IDs created as of 2025, making it one of the world's largest digital health identity systems.
+          </div>
+          <span class="market-stat">55 Crore+</span>
+        </div>
+        <div class="market-card anim-slide-up delay-2">
+          <div class="market-card-icon" style="background: #dcfce7; color: #10b981;">⏱️</div>
+          <div class="market-card-title">Consultation Time</div>
+          <div class="market-card-text">
+            Average PHC consultation is 3-5 minutes. Doctors spend 40% of this time gathering patient history.
+          </div>
+          <span class="market-stat">3-5 min</span>
+        </div>
+        <div class="market-card anim-slide-up delay-3">
+          <div class="market-card-icon" style="background: #fee2e2; color: #ef4444;">📊</div>
+          <div class="market-card-title">Digital Adoption Gap</div>
+          <div class="market-card-text">
+            Despite high ABHA adoption, less than 15% of PHC doctors actively use digital health records during consultations.
+          </div>
+          <span class="market-stat">&lt;15%</span>
+        </div>
+        <div class="market-card anim-slide-up delay-1">
+          <div class="market-card-icon" style="background: #fef3c7; color: #f59e0b;">👥</div>
+          <div class="market-card-title">Doctor Workload</div>
+          <div class="market-card-text">
+            PHC doctors handle 30-50 patients per day with fragmented records spread across multiple facilities.
+          </div>
+          <span class="market-stat">30-50/day</span>
+        </div>
+        <div class="market-card anim-slide-up delay-2">
+          <div class="market-card-icon" style="background: #ede9fe; color: #7c3aed;">🏘️</div>
+          <div class="market-card-title">PHC Coverage</div>
+          <div class="market-card-text">
+            India has 1.5 lakh+ PHCs, with 1.2 lakh+ having digital infrastructure ready for integration.
+          </div>
+          <span class="market-stat">1.5 Lakh+</span>
+        </div>
+        <div class="market-card anim-slide-up delay-3">
+          <div class="market-card-icon" style="background: #cffafe; color: #06b6d4;">💰</div>
+          <div class="market-card-title">Market Size</div>
+          <div class="market-card-text">
+            Addressable market of ₹2,000-3,000 crore annually for PHC digital health software and services.
+          </div>
+          <span class="market-stat">₹2,000-3,000 Cr</span>
+        </div>
+      </div>
+
+      <!-- Problem Statement -->
+      <div class="section-header anim-fade-up">
+        <div class="section-label">🎯 Problem Statement</div>
+        <h2 class="section-title">The Core Challenge</h2>
+        <p class="section-subtitle">
+          Healthcare providers have access to fragmented patient information spread across multiple visits and facilities. The goal is to design an AI-native clinical assistant that helps doctors instantly understand a patient's relevant medical history.
+        </p>
+      </div>
+
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-card-header">
+            <div class="problem-card-icon" style="background: #fee2e2; color: #ef4444;">🩺</div>
+            <div class="problem-card-title">Doctor Pain Points</div>
+          </div>
+          <div class="problem-card-desc">
+            PHC doctors start every consultation from scratch, manually gathering patient history, understanding previous treatments, and identifying risk factors.
+          </div>
+          <ul class="problem-card-list">
+            <li>Must manually gather patient history every visit</li>
+            <li>Records spread across multiple facilities</li>
+            <li>No alerts for allergies, chronic conditions</li>
+            <li>Complex medical histories hard to recall</li>
+            <li>Time spent on context instead of diagnosis</li>
+          </ul>
+        </div>
+        <div class="problem-card">
+          <div class="problem-card-header">
+            <div class="problem-card-icon" style="background: #fef3c7; color: #f59e0b;">👤</div>
+            <div class="problem-card-title">Patient Pain Points</div>
+          </div>
+          <div class="problem-card-desc">
+            Patients must recount their medical history at every visit, leading to inconsistent care, delayed diagnoses, and poor follow-up.
+          </div>
+          <ul class="problem-card-list">
+            <li>Must repeat medical history at every visit</li>
+            <li>Inconsistent care from different doctors</li>
+            <li>Critical conditions missed due to lack of context</li>
+            <li>Missed appointments and medication non-adherence</li>
+            <li>No access to records across facilities</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Research Focus -->
+      <div class="section-header anim-fade-up">
+        <div class="section-label">🔬 Key Research Focus</div>
+        <h2 class="section-title">Five Critical Questions</h2>
+        <p class="section-subtitle">
+          Our research addresses the fundamental challenges in PHC clinical workflows and digital health record utilization.
+        </p>
+      </div>
+
+      <div class="market-grid">
+        <div class="market-card">
+          <div class="market-card-icon" style="background: #dbeafe; color: #3b82f6;">📋</div>
+          <div class="market-card-title">How do PHC doctors currently access patient history?</div>
+          <div class="market-card-text">
+            Understanding the current workflow, tools used, time spent, and pain points in accessing patient records during consultations.
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-card-icon" style="background: #dcfce7; color: #10b981;">🎯</div>
+          <div class="market-card-title">What information is most critical for clinical decisions?</div>
+          <div class="market-card-text">
+            Identifying which data points (allergies, medications, lab trends, chronic conditions) matter most for faster, informed decisions.
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-card-icon" style="background: #ede9fe; color: #7c3aed;">🤖</div>
+          <div class="market-card-title">How can AI summarize longitudinal records?</div>
+          <div class="market-card-text">
+            Designing AI systems that condense years of medical history into actionable insights without losing critical context.
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-card-icon" style="background: #fef3c7; color: #f59e0b;">🔒</div>
+          <div class="market-card-title">What consent and privacy mechanisms are required?</div>
+          <div class="market-card-text">
+            Building robust ABHA consent management that ensures patient privacy while enabling seamless clinical workflows.
+          </div>
+        </div>
+        <div class="market-card">
+          <div class="market-card-icon" style="background: #fee2e2; color: #ef4444;">⚠️</div>
+          <div class="market-card-title">How to handle incomplete or missing records?</div>
+          <div class="market-card-text">
+            Designing graceful degradation and fallback mechanisms when health records are incomplete, inconsistent, or unavailable.
+          </div>
+        </div>
+      </div>
+
+      <!-- Competitive Analysis -->
+      <div class="competitive-section">
+        <div class="section-header anim-fade-up">
+          <div class="section-label">🏆 Competitive Analysis</div>
+          <h2 class="section-title">How AarogyaAI Stands Out</h2>
+          <p class="section-subtitle">
+            While existing solutions address parts of the problem, none combine ABHA-native integration, AI-first design, and PHC-focused UX.
+          </p>
+        </div>
+
+        <div class="competitive-table-wrap">
+          <table class="competitive-table">
+            <thead>
+              <tr>
+                <th>Solution</th>
+                <th>Strengths</th>
+                <th>Weaknesses</th>
+                <th>Our Edge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ABDM Health Locker</strong></td>
+                <td>Official, secure, comprehensive</td>
+                <td>Technical complexity, not clinician-friendly</td>
+                <td class="check-green">Doctor-first UX, AI summarization</td>
+              </tr>
+              <tr>
+                <td><strong>Practo / Pharmeasy</strong></td>
+                <td>Consumer-friendly, appointment booking</td>
+                <td>Not integrated with ABHA, no clinical decision support</td>
+                <td class="check-green">ABHA-native, PHC-focused</td>
+              </tr>
+              <tr>
+                <td><strong>EkaCare</strong></td>
+                <td>ABHA integration, EHR</td>
+                <td>Limited AI, no triage prioritization</td>
+                <td class="check-green">AI-first, urgency-based workflow</td>
+              </tr>
+              <tr>
+                <td><strong>Paper Records</strong></td>
+                <td>Familiar, no tech required</td>
+                <td>Lost records, no search, no alerts</td>
+                <td class="check-green">Digital-first, instant search</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Roadmap -->
+      <div class="section-header anim-fade-up">
+        <div class="section-label">🗺️ Product Roadmap</div>
+        <h2 class="section-title">From MVP to National Scale</h2>
+        <p class="section-subtitle">
+          A phased approach to building, testing, and scaling AarogyaAI across India's primary healthcare ecosystem.
+        </p>
+      </div>
+
+      <div class="roadmap-timeline">
+        <div class="roadmap-card">
+          <div class="roadmap-card-header">
+            <span class="roadmap-phase phase-current">Phase 1</span>
+            <span class="roadmap-time">Current</span>
+          </div>
+          <div class="roadmap-title">MVP Foundation</div>
+          <div class="roadmap-desc">Core prototype with patient dashboard, AI summaries, and basic triage.</div>
+          <ul class="roadmap-items">
+            <li class="done">Patient dashboard</li>
+            <li class="done">AI-generated summaries</li>
+            <li class="done">Critical alert detection</li>
+            <li class="done">ABHA consent UI</li>
+            <li class="done">Visit history visualization</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <div class="roadmap-card-header">
+            <span class="roadmap-phase phase-upcoming">Phase 2</span>
+            <span class="roadmap-time">3-6 months</span>
+          </div>
+          <div class="roadmap-title">Intelligence Layer</div>
+          <div class="roadmap-desc">Real AI/ML models for medical summarization and predictive risk scoring.</div>
+          <ul class="roadmap-items">
+            <li>Real AI summarization engine</li>
+            <li>Drug interaction checker</li>
+            <li>Predictive risk scoring</li>
+            <li>Natural language queries</li>
+            <li>Multi-language support</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <div class="roadmap-card-header">
+            <span class="roadmap-phase phase-upcoming">Phase 3</span>
+            <span class="roadmap-time">6-12 months</span>
+          </div>
+          <div class="roadmap-title">Ecosystem Integration</div>
+          <div class="roadmap-desc">Connect with ABHA Health Locker, telemedicine, and diagnostic labs.</div>
+          <ul class="roadmap-items">
+            <li>ABHA Health Locker API</li>
+            <li>Telemedicine integration</li>
+            <li>Mobile app (React Native)</li>
+            <li>Offline mode for rural areas</li>
+            <li>Ayushman Bharat PMJAY</li>
+          </ul>
+        </div>
+        <div class="roadmap-card">
+          <div class="roadmap-card-header">
+            <span class="roadmap-phase phase-future">Phase 4</span>
+            <span class="roadmap-time">12+ months</span>
+          </div>
+          <div class="roadmap-title">National Scale</div>
+          <div class="roadmap-desc">Multi-state deployment with population health analytics and AI-assisted diagnosis.</div>
+          <ul class="roadmap-items">
+            <li>Multi-state deployment</li>
+            <li>AI-assisted diagnosis</li>
+            <li>Population health analytics</li>
+            <li>Wearable integration</li>
+            <li>Blockchain record integrity</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ARCHITECTURE SECTION ===== -->
+  <section class="section" id="sectionArchitecture">
+    <div class="market-section">
+      <div class="section-header">
+        <div class="section-label">🏗️ Technical Architecture</div>
+        <h2 class="section-title">System Design & Integration</h2>
+        <p class="section-subtitle">
+          A comprehensive architecture designed for scalability, security, and seamless ABHA integration.
+        </p>
+      </div>
+
+      <div class="docs-content" style="padding: 40px; margin-bottom: 40px;">
+        <h2>System Overview</h2>
+        <p>
+          AarogyaAI is an AI-native diagnostic triage assistant that integrates with the Ayushman Bharat Digital Health Mission (ABDM) ecosystem to provide PHC doctors with instant, relevant patient context during consultations.
+        </p>
+
+        <h3>Architecture Components</h3>
+        <ul>
+          <li><strong>Frontend:</strong> Next.js 14 with TypeScript, Tailwind CSS, Recharts for data visualization</li>
+          <li><strong>Backend:</strong> Node.js with Next.js API Routes, PostgreSQL database</li>
+          <li><strong>AI/ML Engine:</strong> OpenAI GPT-4 / Claude for medical summarization, custom ML models for risk scoring</li>
+          <li><strong>Infrastructure:</strong> Vercel (frontend), Railway/Render (backend), Redis caching</li>
+        </ul>
+
+        <h3>ABHA Integration Flow</h3>
+        <div class="highlight-box">
+          <div class="highlight-box-title">Authentication → Consent → Data Retrieval → AI Processing → Presentation</div>
+          <p>
+            The system authenticates doctors via ABHA OAuth 2.0, requests patient consent through ABDM, retrieves health records from ABHA Health Locker, processes them through the AI engine, and presents prioritized insights to the doctor.
+          </p>
+        </div>
+
+        <h2>Data Models</h2>
+        <p>Complete TypeScript interfaces for patients, visits, vitals, prescriptions, lab results, and AI insights.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Key Fields</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Patient</strong></td>
+              <td>abhaId, demographics, bloodGroup, allergies, emergencyContact</td>
+              <td>Patient identification and safety</td>
+            </tr>
+            <tr>
+              <td><strong>Visit</strong></td>
+              <td>date, type, diagnosis, vitals, prescriptions, labResults</td>
+              <td>Clinical encounter tracking</td>
+            </tr>
+            <tr>
+              <td><strong>AIInsight</strong></td>
+              <td>summary, criticalAlerts, riskFactors, recommendations, urgencyScore</td>
+              <td>AI-generated clinical intelligence</td>
+            </tr>
+            <tr>
+              <td><strong>Consent</strong></td>
+              <td>patientId, permissions, grantedAt, expiresAt, accessLog</td>
+              <td>ABDM compliance and audit</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Security & Compliance</h2>
+        <ul>
+          <li>ABHA OAuth 2.0 authentication with JWT tokens</li>
+          <li>End-to-end encryption (AES-256) for data at rest and in transit</li>
+          <li>Role-based access control (RBAC) for doctors, nurses, and admins</li>
+          <li>Comprehensive audit logging for all data access</li>
+          <li>DPDP Act compliance with granular, revocable consent</li>
+          <li>TLS 1.3 for all API communications</li>
+        </ul>
+
+        <h2>Scalability Plan</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Scale</th>
+              <th>Infrastructure</th>
+              <th>Cost/Month</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Phase 1</strong></td>
+              <td>1-10 doctors, 100-500 patients</td>
+              <td>Single server, 1 database</td>
+              <td>₹5,000</td>
+            </tr>
+            <tr>
+              <td><strong>Phase 2</strong></td>
+              <td>50-100 doctors, 5K-10K patients</td>
+              <td>Load balancer, 2-3 app servers</td>
+              <td>₹25,000</td>
+            </tr>
+            <tr>
+              <td><strong>Phase 3</strong></td>
+              <td>1,000+ doctors, 100K+ patients</td>
+              <td>Kubernetes, auto-scaling</td>
+              <td>₹2-5 Lakh</td>
+            </tr>
+            <tr>
+              <td><strong>Phase 4</strong></td>
+              <td>100K+ doctors, 10M+ patients</td>
+              <td>Multi-cloud, edge caching</td>
+              <td>₹50-100 Lakh</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>Business Model</h2>
+        <ul>
+          <li><strong>SaaS Subscription:</strong> ₹500-1,000 per PHC per month</li>
+          <li><strong>Government Contracts:</strong> State-level deployments (₹10-50 lakh per state)</li>
+          <li><strong>Premium Features:</strong> Advanced analytics, telemedicine integration</li>
+          <li><strong>Data Insights:</strong> Aggregated, anonymized population health insights (with consent)</li>
+        </ul>
+
+        <div class="highlight-box">
+          <div class="highlight-box-title">Unit Economics</div>
+          <p>
+            <strong>CAC:</strong> ₹5,000 per PHC | <strong>LTV:</strong> ₹36,000 (3 years) | <strong>LTV:CAC:</strong> 7.2x
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DASHBOARD SECTION ===== -->
+  <section class="dashboard-section" id="sectionDashboard">
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <div class="dashboard-sidebar">
+        <div class="sidebar-logo">
+          <h2>AarogyaAI</h2>
+          <p>Triage Assistant</p>
+        </div>
+        <ul class="sidebar-nav">
+          <li>
+            <button class="sidebar-nav-item active" id="dashNavDashboard" onclick="navigateTo('dashboard')">
+              <span class="sidebar-nav-icon">📊</span>
+              Dashboard
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-nav-item" onclick="alert('Coming soon!')">
+              <span class="sidebar-nav-icon">👥</span>
+              Patients
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-nav-item" onclick="alert('Coming soon!')">
+              <span class="sidebar-nav-icon">🩺</span>
+              Consultations
+            </button>
+          </li>
+          <li>
+            <button class="sidebar-nav-item" onclick="alert('Coming soon!')">
+              <span class="sidebar-nav-icon">📋</span>
+              Reports
+            </button>
+          </li>
+        </ul>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Settings</div>
+          <ul class="sidebar-nav">
+            <li>
+              <button class="sidebar-nav-item" onclick="showConsentModal()">
+                <span class="sidebar-nav-icon">🔒</span>
+                Consent Management
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div class="sidebar-footer">
+          <div class="sidebar-user">
+            <div class="sidebar-user-avatar">👨‍⚕️</div>
+            <div class="sidebar-user-info">
+              <h4>Dr. S. Verma</h4>
+              <p>PHC Rampur, Uttar Pradesh</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Content -->
+      <div class="dashboard-main">
+        <div class="dashboard-header">
+          <div class="dashboard-header-left">
+            <h2>Dashboard</h2>
+            <p>Welcome back, Dr. S. Verma — Primary Health Center, Rampur</p>
+          </div>
+          <div class="dashboard-header-right">
+            <button class="btn-sm">📅 Oct 10, 2025</button>
+            <button class="btn-sm btn-sm-primary">+ New Consultation</button>
+          </div>
+        </div>
+        <div class="dashboard-content">
+          <!-- Stats -->
+          <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+              <div class="stat-card-top">
+                <div>
+                  <div class="stat-card-label">Total Patients</div>
+                  <div class="stat-card-value" id="statTotal">8</div>
+                </div>
+                <div class="stat-card-icon" style="background: #dbeafe; color: #3b82f6;">👥</div>
+              </div>
+              <span class="stat-card-change change-up">↑ Active registry</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-top">
+                <div>
+                  <div class="stat-card-label">Critical Cases</div>
+                  <div class="stat-card-value" style="color: var(--critical);" id="statCritical">2</div>
+                </div>
+                <div class="stat-card-icon" style="background: #fee2e2; color: var(--critical);">🚨</div>
+              </div>
+              <span class="stat-card-change change-down">↑ Needs attention</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-top">
+                <div>
+                  <div class="stat-card-label">High Priority</div>
+                  <div class="stat-card-value" style="color: var(--high);" id="statHigh">2</div>
+                </div>
+                <div class="stat-card-icon" style="background: #ffedd5; color: var(--high);">⚠️</div>
+              </div>
+              <span class="stat-card-change change-down">Monitor closely</span>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-top">
+                <div>
+                  <div class="stat-card-label">Today's Visits</div>
+                  <div class="stat-card-value" style="color: var(--primary);">12</div>
+                </div>
+                <div class="stat-card-icon" style="background: #dbeafe; color: var(--primary);">📅</div>
+              </div>
+              <span class="stat-card-change change-up">↑ 3 more than avg</span>
+            </div>
+          </div>
+
+          <!-- Patient List -->
+          <div class="patient-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-header-title">Patient Registry</div>
+                <div class="panel-header-sub" id="patientCount">8 patients registered</div>
+              </div>
+              <div class="panel-header-actions">
+                <div class="search-input-wrap">
+                  <span class="search-icon">🔍</span>
+                  <input type="text" class="search-input" placeholder="Search patients..." id="searchInput" oninput="filterPatients()">
+                </div>
+                <button class="filter-btn active" id="filterAll" onclick="setFilter('all')">All</button>
+                <button class="filter-btn" id="filterCritical" onclick="setFilter('critical')">Critical</button>
+                <button class="filter-btn" id="filterHigh" onclick="setFilter('high')">High</button>
+                <button class="filter-btn" id="filterMedium" onclick="setFilter('medium')">Medium</button>
+              </div>
+            </div>
+            <div class="patient-table" id="patientTable">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PATIENT DETAIL SECTION ===== -->
+  <section class="patient-detail-section" id="sectionPatientDetail">
+    <div id="patientDetailContent">
+      <!-- Rendered by JS -->
+    </div>
+  </section>
+
+  <!-- ===== DOCS SECTION ===== -->
+  <section class="docs-section" id="sectionDocs">
+    <div class="docs-container">
+      <div class="docs-header">
+        <h1>Technical Documentation</h1>
+        <p>Comprehensive documentation covering architecture, API specifications, data models, and deployment guides.</p>
+      </div>
+      <div class="docs-tabs">
+        <button class="docs-tab active" onclick="showDocsTab('overview')">Overview</button>
+        <button class="docs-tab" onclick="showDocsTab('api')">API</button>
+        <button class="docs-tab" onclick="showDocsTab('models')">Data Models</button>
+        <button class="docs-tab" onclick="showDocsTab('deploy')">Deployment</button>
+      </div>
+      <div class="docs-content" id="docsContent">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CONSENT MODAL ===== -->
+  <div class="modal-overlay" id="consentModal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2>Consent & Privacy Management</h2>
+          <p>ABHA-linked Health Records — ABDM Compliance</p>
+        </div>
+        <button class="modal-close" onclick="hideConsentModal()">×</button>
+      </div>
+      <div class="modal-body" id="consentModalBody">
+        <!-- Rendered by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="hideConsentModal()">Close</button>
+        <button class="btn-sm btn-sm-primary" onclick="alert('Consent settings updated')">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" id="mainFooter">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>AarogyaAI</h3>
+        <p>
+          AI-native diagnostic triage assistant leveraging Ayushman Bharat Digital Health Records to provide doctors with instant, relevant patient context.
+        </p>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <ul class="footer-links">
+          <li><a href="#" onclick="navigateTo('dashboard'); return false;">Dashboard</a></li>
+          <li><a href="#" onclick="navigateTo('market'); return false;">Market Research</a></li>
+          <li><a href="#" onclick="navigateTo('architecture'); return false;">Architecture</a></li>
+          <li><a href="#" onclick="navigateTo('docs'); return false;">Documentation</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Resources</div>
+        <ul class="footer-links">
+          <li><a href="#" onclick="navigateTo('architecture'); return false;">ABDM Guidelines</a></li>
+          <li><a href="#" onclick="navigateTo('architecture'); return false;">API Reference</a></li>
+          <li><a href="#" onclick="navigateTo('architecture'); return false;">Security</a></li>
+          <li><a href="#" onclick="navigateTo('architecture'); return false;">Compliance</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#" onclick="navigateTo('landing'); return false;">About</a></li>
+          <li><a href="#" onclick="navigateTo('market'); return false;">Research</a></li>
+          <li><a href="#" onclick="navigateTo('dashboard'); return false;">Contact</a></li>
+          <li><a href="#" onclick="navigateTo('docs'); return false;">Docs</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      AarogyaAI — Built for the Ayushman Bharat Digital Health Mission. ABHA-Native Clinical Intelligence.
+    </div>
+  </footer>
 
   <script>
-    // ============================================
-    // DATA LAYER - Realistic Indian Healthcare Data
-    // ============================================
-
+    // ====== DATA LAYER ======
     const patients = [
-      {
-        id: 'P001',
-        name: 'Rajesh Kumar',
-        age: 52,
-        gender: 'Male',
-        abhaId: 'ABHA-XXXX-XXXX-0001',
-        phone: '+91 98765 43210',
-        village: 'Rampur',
-        bloodGroup: 'B+',
-        allergies: ['Penicillin'],
-        emergencyContact: '+91 87654 32109',
-        registeredAt: '2021-03-15',
-        lastVisit: '2025-10-08',
-        totalVisits: 24,
-        urgencyLevel: 'high',
-        avatar: 'RK'
-      },
-      {
-        id: 'P002',
-        name: 'Priya Sharma',
-        age: 28,
-        gender: 'Female',
-        abhaId: 'ABHA-XXXX-XXXX-0002',
-        phone: '+91 91234 56789',
-        village: 'Shivpur',
-        bloodGroup: 'A+',
-        allergies: ['Sulfa drugs'],
-        emergencyContact: '+91 82345 67890',
-        registeredAt: '2022-01-10',
-        lastVisit: '2025-10-10',
-        totalVisits: 12,
-        urgencyLevel: 'medium',
-        avatar: 'PS'
-      },
-      {
-        id: 'P003',
-        name: 'Mohammed Ali',
-        age: 65,
-        gender: 'Male',
-        abhaId: 'ABHA-XXXX-XXXX-0003',
-        phone: '+91 93456 78901',
-        village: 'Nagar',
-        bloodGroup: 'O+',
-        allergies: ['None known'],
-        emergencyContact: '+91 94567 89012',
-        registeredAt: '2020-07-22',
-        lastVisit: '2025-10-05',
-        totalVisits: 45,
-        urgencyLevel: 'critical',
-        avatar: 'MA'
-      },
-      {
-        id: 'P004',
-        name: 'Sunita Devi',
-        age: 35,
-        gender: 'Female',
-        abhaId: 'ABHA-XXXX-XXXX-0004',
-        phone: '+91 95678 90123',
-        village: 'Chandanpur',
-        bloodGroup: 'AB-',
-        allergies: ['Dust', 'Pollen'],
-        emergencyContact: '+91 96789 01234',
-        registeredAt: '2023-05-18',
-        lastVisit: '2025-09-28',
-        totalVisits: 8,
-        urgencyLevel: 'low',
-        avatar: 'SD'
-      },
-      {
-        id: 'P005',
-        name: 'Vikram Singh',
-        age: 48,
-        gender: 'Male',
-        abhaId: 'ABHA-XXXX-XXXX-0005',
-        phone: '+91 97890 12345',
-        village: 'Kotwali',
-        bloodGroup: 'A-',
-        allergies: ['Ibuprofen'],
-        emergencyContact: '+91 88901 23456',
-        registeredAt: '2019-11-30',
-        lastVisit: '2025-10-09',
-        totalVisits: 38,
-        urgencyLevel: 'high',
-        avatar: 'VS'
-      },
-      {
-        id: 'P006',
-        name: 'Anjali Mehta',
-        age: 42,
-        gender: 'Female',
-        abhaId: 'ABHA-XXXX-XXXX-0006',
-        phone: '+91 99012 34567',
-        village: 'Gandhinagar',
-        bloodGroup: 'B-',
-        allergies: ['Aspirin'],
-        emergencyContact: '+91 90123 45678',
-        registeredAt: '2022-08-05',
-        lastVisit: '2025-10-07',
-        totalVisits: 16,
-        urgencyLevel: 'medium',
-        avatar: 'AM'
-      },
-      {
-        id: 'P007',
-        name: 'Krishna Prasad',
-        age: 70,
-        gender: 'Male',
-        abhaId: 'ABHA-XXXX-XXXX-0007',
-        phone: '+91 88123 45678',
-        village: 'Badepur',
-        bloodGroup: 'O-',
-        allergies: ['None known'],
-        emergencyContact: '+91 79234 56789',
-        registeredAt: '2018-02-14',
-        lastVisit: '2025-10-10',
-        totalVisits: 62,
-        urgencyLevel: 'critical',
-        avatar: 'KP'
-      },
-      {
-        id: 'P008',
-        name: 'Lakshmi Iyer',
-        age: 31,
-        gender: 'Female',
-        abhaId: 'ABHA-XXXX-XXXX-0008',
-        phone: '+91 77345 67890',
-        village: 'Temple Road',
-        bloodGroup: 'A+',
-        allergies: ['None known'],
-        emergencyContact: '+91 66456 78901',
-        registeredAt: '2024-01-20',
-        lastVisit: '2025-09-15',
-        totalVisits: 5,
-        urgencyLevel: 'low',
-        avatar: 'LI'
-      }
+      { id: 'P001', name: 'Rajesh Kumar', age: 52, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0001', phone: '+91 98765 43210', village: 'Rampur', bloodGroup: 'B+', allergies: ['Penicillin'], emergencyContact: '+91 87654 32109', registeredAt: '2021-03-15', lastVisit: '2025-10-08', totalVisits: 24, urgencyLevel: 'high', avatar: 'RK' },
+      { id: 'P002', name: 'Priya Sharma', age: 28, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0002', phone: '+91 91234 56789', village: 'Shivpur', bloodGroup: 'A+', allergies: ['Sulfa drugs'], emergencyContact: '+91 82345 67890', registeredAt: '2022-01-10', lastVisit: '2025-10-10', totalVisits: 12, urgencyLevel: 'medium', avatar: 'PS' },
+      { id: 'P003', name: 'Mohammed Ali', age: 65, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0003', phone: '+91 93456 78901', village: 'Nagar', bloodGroup: 'O+', allergies: ['None known'], emergencyContact: '+91 94567 89012', registeredAt: '2020-07-22', lastVisit: '2025-10-05', totalVisits: 45, urgencyLevel: 'critical', avatar: 'MA' },
+      { id: 'P004', name: 'Sunita Devi', age: 35, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0004', phone: '+91 95678 90123', village: 'Chandanpur', bloodGroup: 'AB-', allergies: ['Dust', 'Pollen'], emergencyContact: '+91 96789 01234', registeredAt: '2023-05-18', lastVisit: '2025-09-28', totalVisits: 8, urgencyLevel: 'low', avatar: 'SD' },
+      { id: 'P005', name: 'Vikram Singh', age: 48, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0005', phone: '+91 97890 12345', village: 'Kotwali', bloodGroup: 'A-', allergies: ['Ibuprofen'], emergencyContact: '+91 88901 23456', registeredAt: '2019-11-30', lastVisit: '2025-10-09', totalVisits: 38, urgencyLevel: 'high', avatar: 'VS' },
+      { id: 'P006', name: 'Anjali Mehta', age: 42, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0006', phone: '+91 99012 34567', village: 'Gandhinagar', bloodGroup: 'B-', allergies: ['Aspirin'], emergencyContact: '+91 90123 45678', registeredAt: '2022-08-05', lastVisit: '2025-10-07', totalVisits: 16, urgencyLevel: 'medium', avatar: 'AM' },
+      { id: 'P007', name: 'Krishna Prasad', age: 70, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0007', phone: '+91 88123 45678', village: 'Badepur', bloodGroup: 'O-', allergies: ['None known'], emergencyContact: '+91 79234 56789', registeredAt: '2018-02-14', lastVisit: '2025-10-10', totalVisits: 62, urgencyLevel: 'critical', avatar: 'KP' },
+      { id: 'P008', name: 'Lakshmi Iyer', age: 31, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0008', phone: '+91 77345 67890', village: 'Temple Road', bloodGroup: 'A+', allergies: ['None known'], emergencyContact: '+91 66456 78901', registeredAt: '2024-01-20', lastVisit: '2025-09-15', totalVisits: 5, urgencyLevel: 'low', avatar: 'LI' }
     ];
 
     const visitsData = {
       'P001': [
-        {
-          id: 'V001-001',
-          date: '2025-10-08',
-          type: 'Follow-up',
-          facility: 'Primary Health Center, Rampur',
-          doctor: 'Dr. S. Verma',
-          diagnosis: 'Type 2 Diabetes Mellitus - Uncontrolled',
-          symptoms: ['Increased thirst', 'Frequent urination', 'Fatigue', 'Blurred vision'],
-          vitals: {
-            bp: '145/92 mmHg',
-            pulse: '88 bpm',
-            temperature: '37.2°C',
-            weight: '78 kg',
-            bmi: '27.4',
-            bloodSugar: 'FBS 145 mg/dL, PPBS 218 mg/dL'
-          },
-          notes: 'Patient reports poor dietary compliance. HbA1c rising over last 3 visits. Urgent medication review needed.',
-          prescriptions: [
-            { medication: 'Metformin', dosage: '500mg', frequency: 'Twice daily', duration: '30 days', instructions: 'Take after meals' },
-            { medication: 'Glimepiride', dosage: '1mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take before breakfast' }
-          ],
-          labResults: [
-            { test: 'HbA1c', date: '2025-10-08', value: '8.4%', unit: '%', status: 'critical', referenceRange: '< 7.0%' },
-            { test: 'Fasting Blood Sugar', date: '2025-10-08', value: '145', unit: 'mg/dL', status: 'abnormal', referenceRange: '70-100 mg/dL' },
-            { test: 'Postprandial Blood Sugar', date: '2025-10-08', value: '218', unit: 'mg/dL', status: 'critical', referenceRange: '< 140 mg/dL' },
-            { test: 'Creatinine', date: '2025-10-08', value: '1.2', unit: 'mg/dL', status: 'normal', referenceRange: '0.7-1.3 mg/dL' },
-            { test: 'Urine Albumin', date: '2025-10-08', value: '30', unit: 'mg/L', status: 'abnormal', referenceRange: '< 20 mg/L' }
-          ],
-          followUpDate: '2025-10-22'
-        },
-        {
-          id: 'V001-002',
-          date: '2025-09-24',
-          type: 'Follow-up',
-          facility: 'Primary Health Center, Rampur',
-          doctor: 'Dr. S. Verma',
-          diagnosis: 'Type 2 Diabetes Mellitus',
-          symptoms: ['Fatigue', 'Mild polyuria'],
-          vitals: {
-            bp: '138/88 mmHg',
-            pulse: '82 bpm',
-            temperature: '37.0°C',
-            weight: '77 kg',
-            bloodSugar: 'FBS 132 mg/dL, PPBS 195 mg/dL'
-          },
-          notes: 'Slight improvement from last visit. Continue current medication.',
-          prescriptions: [
-            { medication: 'Metformin', dosage: '500mg', frequency: 'Twice daily', duration: '30 days', instructions: 'Take after meals' }
-          ],
-          labResults: [
-            { test: 'HbA1c', date: '2025-09-24', value: '7.8%', unit: '%', status: 'abnormal', referenceRange: '< 7.0%' },
-            { test: 'Fasting Blood Sugar', date: '2025-09-24', value: '132', unit: 'mg/dL', status: 'abnormal', referenceRange: '70-100 mg/dL' },
-            { test: 'Postprandial Blood Sugar', date: '2025-09-24', value: '195', unit: 'mg/dL', status: 'critical', referenceRange: '< 140 mg/dL' }
-          ],
-          followUpDate: '2025-10-08'
-        }
+        { id: 'V001-001', date: '2025-10-08', type: 'Follow-up', facility: 'Primary Health Center, Rampur', doctor: 'Dr. S. Verma', diagnosis: 'Type 2 Diabetes Mellitus - Uncontrolled', symptoms: ['Increased thirst', 'Frequent urination', 'Fatigue', 'Blurred vision'], vitals: { bp: '145/92 mmHg', pulse: '88 bpm', temperature: '37.2°C', weight: '78 kg', bmi: '27.4', bloodSugar: 'FBS 145 mg/dL, PPBS 218 mg/dL' }, notes: 'Patient reports poor dietary compliance. HbA1c rising over last 3 visits. Urgent medication review needed.', prescriptions: [ { medication: 'Metformin', dosage: '500mg', frequency: 'Twice daily', duration: '30 days', instructions: 'Take after meals' }, { medication: 'Glimepiride', dosage: '1mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take before breakfast' } ], labResults: [ { test: 'HbA1c', date: '2025-10-08', value: '8.4%', unit: '%', status: 'critical', referenceRange: '< 7.0%' }, { test: 'Fasting Blood Sugar', date: '2025-10-08', value: '145', unit: 'mg/dL', status: 'abnormal', referenceRange: '70-100 mg/dL' }, { test: 'Postprandial Blood Sugar', date: '2025-10-08', value: '218', unit: 'mg/dL', status: 'critical', referenceRange: '< 140 mg/dL' } ], followUpDate: '2025-10-22' }
       ],
       'P003': [
-        {
-          id: 'V003-001',
-          date: '2025-10-05',
-          type: 'Emergency',
-          facility: 'District Hospital',
-          doctor: 'Dr. A. Khan',
-          diagnosis: 'Acute Myocardial Infarction (Heart Attack)',
-          symptoms: ['Chest pain', 'Sweating', 'Shortness of breath', 'Nausea', 'Left arm pain'],
-          vitals: {
-            bp: '100/60 mmHg',
-            pulse: '110 bpm',
-            temperature: '37.0°C',
-            spo2: '94%'
-          },
-          notes: 'Patient presented with severe chest pain. ECG shows ST-elevation. Thrombolysis administered. Transferred to CCU.',
-          prescriptions: [
-            { medication: 'Aspirin', dosage: '325mg', frequency: 'Once daily', duration: 'Ongoing', instructions: 'Chew and swallow' },
-            { medication: 'Clopidogrel', dosage: '75mg', frequency: 'Once daily', duration: '12 months', instructions: 'Take with food' },
-            { medication: 'Atorvastatin', dosage: '80mg', frequency: 'Once daily', duration: 'Ongoing', instructions: 'Take at bedtime' }
-          ],
-          labResults: [
-            { test: 'Troponin I', date: '2025-10-05', value: '15.2', unit: 'ng/mL', status: 'critical', referenceRange: '< 0.04 ng/mL' },
-            { test: 'CK-MB', date: '2025-10-05', value: '45', unit: 'U/L', status: 'critical', referenceRange: '< 25 U/L' },
-            { test: 'LDL Cholesterol', date: '2025-10-05', value: '145', unit: 'mg/dL', status: 'abnormal', referenceRange: '< 100 mg/dL' },
-            { test: 'ECG', date: '2025-10-05', value: 'ST Elevation', unit: '', status: 'critical', referenceRange: 'Normal' }
-          ],
-          followUpDate: '2025-10-19'
-        }
+        { id: 'V003-001', date: '2025-10-05', type: 'Emergency', facility: 'District Hospital', doctor: 'Dr. A. Khan', diagnosis: 'Acute Myocardial Infarction (Heart Attack)', symptoms: ['Chest pain', 'Sweating', 'Shortness of breath', 'Nausea', 'Left arm pain'], vitals: { bp: '100/60 mmHg', pulse: '110 bpm', temperature: '37.0°C', spo2: '94%' }, notes: 'Patient presented with severe chest pain. ECG shows ST-elevation. Thrombolysis administered.', prescriptions: [ { medication: 'Aspirin', dosage: '325mg', frequency: 'Once daily', duration: 'Ongoing', instructions: 'Chew and swallow' }, { medication: 'Clopidogrel', dosage: '75mg', frequency: 'Once daily', duration: '12 months', instructions: 'Take with food' }, { medication: 'Atorvastatin', dosage: '80mg', frequency: 'Once daily', duration: 'Ongoing', instructions: 'Take at bedtime' } ], labResults: [ { test: 'Troponin I', date: '2025-10-05', value: '15.2', unit: 'ng/mL', status: 'critical', referenceRange: '< 0.04 ng/mL' }, { test: 'CK-MB', date: '2025-10-05', value: '45', unit: 'U/L', status: 'critical', referenceRange: '< 25 U/L' } ], followUpDate: '2025-10-19' }
       ],
       'P005': [
-        {
-          id: 'V005-001',
-          date: '2025-10-09',
-          type: 'Follow-up',
-          facility: 'Primary Health Center, Kotwali',
-          doctor: 'Dr. M. Joshi',
-          diagnosis: 'Chronic Kidney Disease Stage 3',
-          symptoms: ['Fatigue', 'Swelling in legs', 'Reduced urine output', 'Nausea'],
-          vitals: {
-            bp: '158/98 mmHg',
-            pulse: '86 bpm',
-            temperature: '37.1°C',
-            weight: '72 kg',
-            bmi: '26.1'
-          },
-          notes: 'CKD progressing. Creatinine rising. Nephrology referral pending. Strict BP control needed.',
-          prescriptions: [
-            { medication: 'Amlodipine', dosage: '10mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take in morning' },
-            { medication: 'Furosemide', dosage: '40mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take in morning' }
-          ],
-          labResults: [
-            { test: 'Creatinine', date: '2025-10-09', value: '2.4', unit: 'mg/dL', status: 'critical', referenceRange: '0.7-1.3 mg/dL' },
-            { test: 'eGFR', date: '2025-10-09', value: '38', unit: 'mL/min', status: 'critical', referenceRange: '> 60 mL/min' },
-            { test: 'Potassium', date: '2025-10-09', value: '5.8', unit: 'mEq/L', status: 'critical', referenceRange: '3.5-5.0 mEq/L' },
-            { test: 'Hemoglobin', date: '2025-10-09', value: '9.2', unit: 'g/dL', status: 'abnormal', referenceRange: '13-17 g/dL' }
-          ],
-          followUpDate: '2025-10-23'
-        }
+        { id: 'V005-001', date: '2025-10-09', type: 'Follow-up', facility: 'Primary Health Center, Kotwali', doctor: 'Dr. M. Joshi', diagnosis: 'Chronic Kidney Disease Stage 3', symptoms: ['Fatigue', 'Swelling in legs', 'Reduced urine output'], vitals: { bp: '158/98 mmHg', pulse: '86 bpm', temperature: '37.1°C', weight: '72 kg', bmi: '26.1' }, notes: 'CKD progressing. Creatinine rising. Nephrology referral pending.', prescriptions: [ { medication: 'Amlodipine', dosage: '10mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take in morning' }, { medication: 'Furosemide', dosage: '40mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take in morning' } ], labResults: [ { test: 'Creatinine', date: '2025-10-09', value: '2.4', unit: 'mg/dL', status: 'critical', referenceRange: '0.7-1.3 mg/dL' }, { test: 'eGFR', date: '2025-10-09', value: '38', unit: 'mL/min', status: 'critical', referenceRange: '> 60 mL/min' }, { test: 'Potassium', date: '2025-10-09', value: '5.8', unit: 'mEq/L', status: 'critical', referenceRange: '3.5-5.0 mEq/L' }, { test: 'Hemoglobin', date: '2025-10-09', value: '9.2', unit: 'g/dL', status: 'abnormal', referenceRange: '13-17 g/dL' } ], followUpDate: '2025-10-23' }
       ],
       'P007': [
-        {
-          id: 'V007-001',
-          date: '2025-10-10',
-          type: 'Follow-up',
-          facility: 'District Hospital',
-          doctor: 'Dr. P. Reddy',
-          diagnosis: 'COPD Exacerbation + Congestive Heart Failure',
-          symptoms: ['Severe shortness of breath', 'Cough with sputum', 'Leg swelling', 'Fatigue'],
-          vitals: {
-            bp: '130/85 mmHg',
-            pulse: '102 bpm',
-            temperature: '37.5°C',
-            spo2: '88%'
-          },
-          notes: 'Acute exacerbation. Oxygen started. Diuretics increased. Monitor fluid balance.',
-          prescriptions: [
-            { medication: 'Furosemide', dosage: '80mg', frequency: 'Twice daily', duration: '14 days', instructions: 'Take morning and afternoon' },
-            { medication: 'Budesonide + Formoterol', dosage: '160/4.5 mcg', frequency: 'Twice daily', duration: '30 days', instructions: 'Inhale' }
-          ],
-          labResults: [
-            { test: 'BNP', date: '2025-10-10', value: '1850', unit: 'pg/mL', status: 'critical', referenceRange: '< 100 pg/mL' },
-            { test: 'Creatinine', date: '2025-10-10', value: '1.8', unit: 'mg/dL', status: 'abnormal', referenceRange: '0.7-1.3 mg/dL' },
-            { test: 'Potassium', date: '2025-10-10', value: '5.2', unit: 'mEq/L', status: 'abnormal', referenceRange: '3.5-5.0 mEq/L' }
-          ],
-          followUpDate: '2025-10-17'
-        }
+        { id: 'V007-001', date: '2025-10-10', type: 'Follow-up', facility: 'District Hospital', doctor: 'Dr. P. Reddy', diagnosis: 'COPD Exacerbation + Congestive Heart Failure', symptoms: ['Severe shortness of breath', 'Cough with sputum', 'Leg swelling'], vitals: { bp: '130/85 mmHg', pulse: '102 bpm', temperature: '37.5°C', spo2: '88%' }, notes: 'Acute exacerbation. Oxygen started. Diuretics increased.', prescriptions: [ { medication: 'Furosemide', dosage: '80mg', frequency: 'Twice daily', duration: '14 days', instructions: 'Take morning and afternoon' }, { medication: 'Budesonide + Formoterol', dosage: '160/4.5 mcg', frequency: 'Twice daily', duration: '30 days', instructions: 'Inhale' } ], labResults: [ { test: 'BNP', date: '2025-10-10', value: '1850', unit: 'pg/mL', status: 'critical', referenceRange: '< 100 pg/mL' }, { test: 'Creatinine', date: '2025-10-10', value: '1.8', unit: 'mg/dL', status: 'abnormal', referenceRange: '0.7-1.3 mg/dL' }, { test: 'Potassium', date: '2025-10-10', value: '5.2', unit: 'mEq/L', status: 'abnormal', referenceRange: '3.5-5.0 mEq/L' } ], followUpDate: '2025-10-17' }
       ],
       'P002': [
-        {
-          id: 'V002-001',
-          date: '2025-10-10',
-          type: 'Antenatal Checkup',
-          facility: 'Primary Health Center, Shivpur',
-          doctor: 'Dr. N. Singh',
-          diagnosis: 'Pregnancy - 28 weeks, Low weight gain',
-          symptoms: ['Mild backache', 'Occasional nausea', 'Reduced fetal movement perception'],
-          vitals: {
-            bp: '118/76 mmHg',
-            pulse: '82 bpm',
-            temperature: '36.9°C',
-            weight: '58 kg'
-          },
-          notes: 'Weight gain below expected for gestational age. Nutrition counseling provided. Iron and folic acid supplementation ongoing.',
-          prescriptions: [
-            { medication: 'Iron + Folic Acid', dosage: '100mg/0.5mg', frequency: 'Once daily', duration: 'Until delivery', instructions: 'Take after meals' },
-            { medication: 'Calcium', dosage: '500mg', frequency: 'Twice daily', duration: 'Until delivery', instructions: 'Take with meals' }
-          ],
-          labResults: [
-            { test: 'Hemoglobin', date: '2025-10-10', value: '10.2', unit: 'g/dL', status: 'abnormal', referenceRange: '11-13 g/dL' },
-            { test: 'Urine Albumin', date: '2025-10-10', value: 'Negative', unit: '', status: 'normal', referenceRange: 'Negative' },
-            { test: 'Blood Sugar (Random)', date: '2025-10-10', value: '110', unit: 'mg/dL', status: 'normal', referenceRange: '< 140 mg/dL' }
-          ],
-          followUpDate: '2025-10-24'
-        }
+        { id: 'V002-001', date: '2025-10-10', type: 'Antenatal Checkup', facility: 'Primary Health Center, Shivpur', doctor: 'Dr. N. Singh', diagnosis: 'Pregnancy - 28 weeks, Low weight gain', symptoms: ['Mild backache', 'Occasional nausea'], vitals: { bp: '118/76 mmHg', pulse: '82 bpm', temperature: '36.9°C', weight: '58 kg' }, notes: 'Weight gain below expected for gestational age. Nutrition counseling provided.', prescriptions: [ { medication: 'Iron + Folic Acid', dosage: '100mg/0.5mg', frequency: 'Once daily', duration: 'Until delivery', instructions: 'Take after meals' }, { medication: 'Calcium', dosage: '500mg', frequency: 'Twice daily', duration: 'Until delivery', instructions: 'Take with meals' } ], labResults: [ { test: 'Hemoglobin', date: '2025-10-10', value: '10.2', unit: 'g/dL', status: 'abnormal', referenceRange: '11-13 g/dL' } ], followUpDate: '2025-10-24' }
       ],
       'P004': [
-        {
-          id: 'V004-001',
-          date: '2025-09-28',
-          type: 'Consultation',
-          facility: 'Primary Health Center, Chandanpur',
-          doctor: 'Dr. K. Patel',
-          diagnosis: 'Upper Respiratory Tract Infection',
-          symptoms: ['Fever', 'Cough', 'Runny nose', 'Sore throat'],
-          vitals: {
-            bp: '120/80 mmHg',
-            pulse: '84 bpm',
-            temperature: '38.5°C',
-            weight: '55 kg'
-          },
-          notes: 'Viral URTI. No signs of pneumonia. Symptomatic treatment advised.',
-          prescriptions: [
-            { medication: 'Paracetamol', dosage: '500mg', frequency: 'Three times daily', duration: '5 days', instructions: 'Take after meals' },
-            { medication: 'Cetirizine', dosage: '10mg', frequency: 'Once daily at night', duration: '5 days', instructions: 'Take at bedtime' }
-          ],
-          labResults: [],
-          followUpDate: '2025-10-05'
-        }
+        { id: 'V004-001', date: '2025-09-28', type: 'Consultation', facility: 'Primary Health Center, Chandanpur', doctor: 'Dr. K. Patel', diagnosis: 'Upper Respiratory Tract Infection', symptoms: ['Fever', 'Cough', 'Runny nose', 'Sore throat'], vitals: { bp: '120/80 mmHg', pulse: '84 bpm', temperature: '38.5°C', weight: '55 kg' }, notes: 'Viral URTI. Symptomatic treatment advised.', prescriptions: [ { medication: 'Paracetamol', dosage: '500mg', frequency: 'Three times daily', duration: '5 days', instructions: 'Take after meals' } ], labResults: [], followUpDate: '2025-10-05' }
       ],
       'P006': [
-        {
-          id: 'V006-001',
-          date: '2025-10-07',
-          type: 'Follow-up',
-          facility: 'Community Health Center',
-          doctor: 'Dr. R. Gupta',
-          diagnosis: 'Hypothyroidism',
-          symptoms: ['Fatigue', 'Weight gain', 'Cold intolerance', 'Hair loss'],
-          vitals: {
-            bp: '122/82 mmHg',
-            pulse: '68 bpm',
-            temperature: '36.6°C',
-            weight: '68 kg',
-            bmi: '26.8'
-          },
-          notes: 'TSH slightly elevated. Continue current dose. Repeat thyroid panel in 3 months.',
-          prescriptions: [
-            { medication: 'Levothyroxine', dosage: '50mcg', frequency: 'Once daily', duration: '30 days', instructions: 'Take on empty stomach, 30 min before breakfast' }
-          ],
-          labResults: [
-            { test: 'TSH', date: '2025-10-07', value: '6.8', unit: 'mIU/L', status: 'abnormal', referenceRange: '0.4-4.0 mIU/L' },
-            { test: 'Free T4', date: '2025-10-07', value: '0.8', unit: 'ng/dL', status: 'normal', referenceRange: '0.8-1.8 ng/dL' }
-          ],
-          followUpDate: '2026-01-07'
-        }
+        { id: 'V006-001', date: '2025-10-07', type: 'Follow-up', facility: 'Community Health Center', doctor: 'Dr. R. Gupta', diagnosis: 'Hypothyroidism', symptoms: ['Fatigue', 'Weight gain', 'Cold intolerance'], vitals: { bp: '122/82 mmHg', pulse: '68 bpm', temperature: '36.6°C', weight: '68 kg', bmi: '26.8' }, notes: 'TSH slightly elevated. Continue current dose.', prescriptions: [ { medication: 'Levothyroxine', dosage: '50mcg', frequency: 'Once daily', duration: '30 days', instructions: 'Take on empty stomach' } ], labResults: [ { test: 'TSH', date: '2025-10-07', value: '6.8', unit: 'mIU/L', status: 'abnormal', referenceRange: '0.4-4.0 mIU/L' } ], followUpDate: '2026-01-07' }
       ],
       'P008': [
-        {
-          id: 'V008-001',
-          date: '2025-09-15',
-          type: 'Postnatal Checkup',
-          facility: 'Primary Health Center, Temple Road',
-          doctor: 'Dr. N. Singh',
-          diagnosis: 'Postnatal Checkup - Normal Recovery',
-          symptoms: ['Normal'],
-          vitals: {
-            bp: '116/74 mmHg',
-            pulse: '76 bpm',
-            temperature: '36.8°C',
-            weight: '60 kg'
-          },
-          notes: 'Postnatal recovery on track. Baby healthy. Breastfeeding going well.',
-          prescriptions: [
-            { medication: 'Calcium + Vitamin D', dosage: '500mg/400 IU', frequency: 'Once daily', duration: '6 months', instructions: 'Take with meals' }
-          ],
-          labResults: [],
-          followUpDate: '2025-10-15'
-        }
+        { id: 'V008-001', date: '2025-09-15', type: 'Postnatal Checkup', facility: 'Primary Health Center, Temple Road', doctor: 'Dr. N. Singh', diagnosis: 'Postnatal Checkup - Normal Recovery', symptoms: ['Normal'], vitals: { bp: '116/74 mmHg', pulse: '76 bpm', temperature: '36.8°C', weight: '60 kg' }, notes: 'Postnatal recovery on track.', prescriptions: [ { medication: 'Calcium + Vitamin D', dosage: '500mg/400 IU', frequency: 'Once daily', duration: '6 months', instructions: 'Take with meals' } ], labResults: [], followUpDate: '2025-10-15' }
       ]
     };
 
-    // AI Insights Engine
     const aiInsights = {
-      'P001': {
-        summary: '52-year-old male with poorly controlled Type 2 Diabetes Mellitus and newly diagnosed Hypertension. HbA1c has risen to 8.4% from 7.8% in just 2 weeks, indicating worsening glycemic control. Patient shows signs of early diabetic nephropathy (microalbuminuria). Immediate medication optimization and lifestyle intervention required.',
-        criticalAlerts: [
-          'HbA1c 8.4% — significantly above target (<7.0%). Rapid deterioration from 7.8% (Sep 24) to 8.4% (Oct 8).',
-          'Microalbuminuria detected (30 mg/L) — early sign of diabetic kidney damage.',
-          'Blood glucose critically elevated: FBS 145 mg/dL, PPBS 218 mg/dL.',
-          'Urine albumin positive — requires nephrology input to prevent progression.'
-        ],
-        riskFactors: [
-          'Poor dietary compliance reported by patient',
-          'Age > 50 with uncontrolled diabetes',
-          'Hypertension not yet controlled on single agent',
-          'Obesity (BMI 27.4 — overweight category)',
-          'Family history likely (common in Indian diabetic patients)'
-        ],
-        medicationIssues: [
-          'Metformin alone insufficient — needs combination therapy or dose escalation',
-          'No antihypertensive added yet for BP 145/92',
-          'Medication adherence questionable given worsening labs',
-          'Glimepiride added but glycemia still uncontrolled'
-        ],
-        chronicConditions: ['Type 2 Diabetes Mellitus', 'Hypertension', 'Overweight (BMI 27.4)'],
-        recommendations: [
-          'Add Telmisartan or ACE inhibitor for BP control and renal protection',
-          'Increase Metformin to 1000mg twice daily if tolerated',
-          'Refer to nutritionist for dietary counseling',
-          'Schedule nephrology consultation for microalbuminuria',
-          'Advise regular blood glucose monitoring (FBS + PPBS daily)',
-          'Screen for diabetic retinopathy if not done in past year',
-          'Consider GLP-1 receptor agonist if glycemia remains uncontrolled',
-          'Urgent follow-up in 2 weeks (Oct 22) — do not miss'
-        ],
-        urgencyScore: 8
-      },
-      'P003': {
-        summary: '65-year-old male with history of stable CAD, now presented with acute ST-elevation myocardial infarction (STEMI). Thrombolysis administered, currently under cardiac care. Elevated cardiac enzymes confirm infarction. Requires intensive cardiac monitoring and secondary prevention therapy.',
-        criticalAlerts: [
-          'Acute STEMI confirmed — life-threatening emergency',
-          'Troponin I 15.2 ng/mL (380x above normal) — massive cardiac injury',
-          'CK-MB 45 U/L (1.8x above normal) — confirms myocardial damage',
-          'ECG shows ST Elevation — requires immediate intervention',
-          'High LDL (145 mg/dL) — modifiable risk factor for recurrent events'
-        ],
-        riskFactors: [
-          'Age > 60 (highest risk group for cardiac events)',
-          'Known Coronary Artery Disease',
-          'Uncontrolled hypertension history',
-          'Family history of cardiac disease',
-          'Sedentary lifestyle likely (common in rural elderly)'
-        ],
-        medicationIssues: [
-          'No statin prescribed pre-admission — lipid control inadequate',
-          'Aspirin and Clopidogrel initiated post-MI — appropriate dual antiplatelet therapy',
-          'Atorvastatin high-dose started — good secondary prevention',
-          'Beta-blocker not yet started — should be added when hemodynamically stable'
-        ],
-        chronicConditions: ['Coronary Artery Disease', 'Hypertension', 'Hyperlipidemia'],
-        recommendations: [
-          'Continue dual antiplatelet therapy (Aspirin + Clopidogrel) for 12 months',
-          'Add Metoprolol when hemodynamically stable',
-          'Intensive cardiac rehabilitation program post-discharge',
-          'Stress test or angiography follow-up in 4-6 weeks',
-          'Lifestyle modification: low-fat diet, gradual walking program',
-          'Annual influenza and pneumococcal vaccination',
-          'Cardiology follow-up every 3 months',
-          'Emergency education for patient and family on warning signs'
-        ],
-        urgencyScore: 10
-      },
-      'P005': {
-        summary: '48-year-old male with progressive Chronic Kidney Disease (Stage 3b, eGFR 38). Creatinine rising to 2.4 mg/dL with hyperkalemia (K+ 5.8). Hypertension remains uncontrolled. Nephrology referral pending. Risk of progression to Stage 4/5 and dialysis.',
-        criticalAlerts: [
-          'Creatinine 2.4 mg/dL — severely elevated, indicates advanced CKD',
-          'eGFR 38 mL/min — Stage 3b CKD, kidney function declining',
-          'Hyperkalemia (5.8 mEq/L) — dangerous, can cause cardiac arrhythmia',
-          'BP 158/98 — severely uncontrolled, accelerating kidney damage',
-          'Potassium level requires immediate attention to prevent cardiac events'
-        ],
-        riskFactors: [
-          'Uncontrolled hypertension as primary cause',
-          'Likely diabetic nephropathy (common in Indian CKD)',
-          'Age > 45 with progressive CKD',
-          'No nephrology care until now',
-          'No ACE inhibitor/ARB use yet'
-        ],
-        medicationIssues: [
-          'Furosemide dose may be insufficient for volume control',
-          'ACE inhibitor/ARB not prescribed — would provide renal protection',
-          'Hyperkalemia management needed — dietary potassium restriction',
-          'No erythropoietin for anemia (Hb 9.2)'
-        ],
-        chronicConditions: ['Chronic Kidney Disease Stage 3b', 'Hypertension', 'Anemia'],
-        recommendations: [
-          'URGENT: Nephrology referral — expedite within 1 week',
-          'Start Telmisartan 40mg (renal protective, BP control, reduce proteinuria)',
-          'Dietary potassium restriction counsel — avoid bananas, potatoes, tomatoes',
-          'Increase Furosemide to 80mg if BP allows',
-          'Start Erythropoietin for anemia (Hb 9.2)',
-          'Monitor potassium closely — repeat in 1 week',
-          'Avoid NSAIDs, contrast agents, nephrotoxic drugs',
-          'Protein intake moderation (0.6-0.8g/kg/day)',
-          'Fluid management: restrict to 1.5L/day if edema present'
-        ],
-        urgencyScore: 9
-      },
-      'P007': {
-        summary: '70-year-old male with COPD exacerbation superimposed on Congestive Heart Failure. BNP markedly elevated (1850) indicating severe heart failure. Hypoxemia (SpO2 88%) requires oxygen therapy. Multisystem failure risk — cardiopulmonary interaction critical.',
-        criticalAlerts: [
-          'BNP 1850 pg/mL — indicates severe decompensated heart failure',
-          'SpO2 88% — severe hypoxemia, immediate oxygen needed',
-          'Potassium 5.2 mEq/L — elevated (on diuretics, monitor closely)',
-          'Creatinine 1.8 mg/dL — acute kidney injury likely from diuretic overuse',
-          'Age 70 with COPD + CHF — high mortality risk'
-        ],
-        riskFactors: [
-          'Age > 70 (highest mortality risk)',
-          'Dual cardiopulmonary disease',
-          'Acute exacerbation of chronic conditions',
-          'Possible fluid overload',
-          'Reduced exercise tolerance'
-        ],
-        medicationIssues: [
-          'Diuretic dose doubled — monitor renal function and electrolytes',
-          'Inhaled corticosteroid + LABA initiated — appropriate for COPD',
-          'Beta-agonist may be needed for bronchospasm',
-          'Anticoagulation needed for CHF (no mention of current use)'
-        ],
-        chronicConditions: ['COPD', 'Congestive Heart Failure', 'Chronic Kidney Disease'],
-        recommendations: [
-          'Continuous oxygen monitoring — target SpO2 > 92%',
-          'Daily weight and fluid balance monitoring',
-          'Add Enalapril or Sacubitril when stable for CHF',
-          'Start anticoagulation if atrial fibrillation or low EF',
-          'Pulmonary rehabilitation after stabilization',
-          'Annual influenza and pneumococcal vaccination',
-          'Smoking cessation if applicable (critical for COPD)',
-          'Nutritional support — high protein, low sodium diet',
-          'Home oxygen assessment for discharge planning',
-          'Close monitoring of K+ and Creatinine with high-dose diuretics'
-        ],
-        urgencyScore: 10
-      }
+      'P001': { summary: '52-year-old male with poorly controlled Type 2 Diabetes Mellitus and newly diagnosed Hypertension. HbA1c has risen to 8.4% from 7.8% in just 2 weeks, indicating worsening glycemic control. Patient shows signs of early diabetic nephropathy (microalbuminuria). Immediate medication optimization and lifestyle intervention required.', criticalAlerts: [ 'HbA1c 8.4% — significantly above target (<7.0%). Rapid deterioration from 7.8% (Sep 24) to 8.4% (Oct 8).', 'Microalbuminuria detected (30 mg/L) — early sign of diabetic kidney damage.', 'Blood glucose critically elevated: FBS 145 mg/dL, PPBS 218 mg/dL.', 'Urine albumin positive — requires nephrology input to prevent progression.' ], riskFactors: [ 'Poor dietary compliance reported by patient', 'Age > 50 with uncontrolled diabetes', 'Hypertension not yet controlled on single agent', 'Obesity (BMI 27.4 — overweight category)' ], medicationIssues: [ 'Metformin alone insufficient — needs combination therapy', 'No antihypertensive added yet for BP 145/92', 'Medication adherence questionable given worsening labs' ], chronicConditions: ['Type 2 Diabetes Mellitus', 'Hypertension', 'Overweight (BMI 27.4)'], recommendations: [ 'Add Telmisartan or ACE inhibitor for BP control and renal protection', 'Increase Metformin to 1000mg twice daily if tolerated', 'Refer to nutritionist for dietary counseling', 'Schedule nephrology consultation for microalbuminuria', 'Advise regular blood glucose monitoring (FBS + PPBS daily)', 'Screen for diabetic retinopathy if not done in past year', 'Urgent follow-up in 2 weeks (Oct 22)' ], urgencyScore: 8 },
+      'P003': { summary: '65-year-old male with history of stable CAD, now presented with acute ST-elevation myocardial infarction (STEMI). Thrombolysis administered, currently under cardiac care. Elevated cardiac enzymes confirm infarction. Requires intensive cardiac monitoring and secondary prevention therapy.', criticalAlerts: [ 'Acute STEMI confirmed — life-threatening emergency', 'Troponin I 15.2 ng/mL (380x above normal) — massive cardiac injury', 'CK-MB 45 U/L (1.8x above normal) — confirms myocardial damage', 'ECG shows ST Elevation — requires immediate intervention', 'High LDL (145 mg/dL) — modifiable risk factor for recurrent events' ], riskFactors: [ 'Age > 60 (highest risk group for cardiac events)', 'Known Coronary Artery Disease', 'Uncontrolled hypertension history', 'Family history of cardiac disease' ], medicationIssues: [ 'No statin prescribed pre-admission — lipid control inadequate', 'Aspirin and Clopidogrel initiated post-MI — appropriate dual antiplatelet therapy', 'Atorvastatin high-dose started — good secondary prevention', 'Beta-blocker not yet started — should be added when stable' ], chronicConditions: ['Coronary Artery Disease', 'Hypertension', 'Hyperlipidemia'], recommendations: [ 'Continue dual antiplatelet therapy (Aspirin + Clopidogrel) for 12 months', 'Add Metoprolol when hemodynamically stable', 'Intensive cardiac rehabilitation program post-discharge', 'Stress test or angiography follow-up in 4-6 weeks', 'Lifestyle modification: low-fat diet, gradual walking program', 'Annual influenza and pneumococcal vaccination', 'Cardiology follow-up every 3 months', 'Emergency education for patient and family on warning signs' ], urgencyScore: 10 },
+      'P005': { summary: '48-year-old male with progressive Chronic Kidney Disease (Stage 3b, eGFR 38). Creatinine rising to 2.4 mg/dL with hyperkalemia (K+ 5.8). Hypertension remains uncontrolled. Nephrology referral pending. Risk of progression to Stage 4/5 and dialysis.', criticalAlerts: [ 'Creatinine 2.4 mg/dL — severely elevated, indicates advanced CKD', 'eGFR 38 mL/min — Stage 3b CKD, kidney function declining', 'Hyperkalemia (5.8 mEq/L) — dangerous, can cause cardiac arrhythmia', 'BP 158/98 — severely uncontrolled, accelerating kidney damage' ], riskFactors: [ 'Uncontrolled hypertension as primary cause', 'Age > 45 with progressive CKD', 'No nephrology care until now', 'No ACE inhibitor/ARB use yet' ], medicationIssues: [ 'Furosemide dose may be insufficient for volume control', 'ACE inhibitor/ARB not prescribed — would provide renal protection', 'Hyperkalemia management needed — dietary potassium restriction' ], chronicConditions: ['Chronic Kidney Disease Stage 3b', 'Hypertension', 'Anemia'], recommendations: [ 'URGENT: Nephrology referral — expedite within 1 week', 'Start Telmisartan 40mg (renal protective, BP control, reduce proteinuria)', 'Dietary potassium restriction counsel — avoid bananas, potatoes, tomatoes', 'Increase Furosemide to 80mg if BP allows', 'Start Erythropoietin for anemia (Hb 9.2)', 'Monitor potassium closely — repeat in 1 week', 'Avoid NSAIDs, contrast agents, nephrotoxic drugs' ], urgencyScore: 9 },
+      'P007': { summary: '70-year-old male with COPD exacerbation superimposed on Congestive Heart Failure. BNP markedly elevated (1850) indicating severe heart failure. Hypoxemia (SpO2 88%) requires oxygen therapy. Multisystem failure risk — cardiopulmonary interaction critical.', criticalAlerts: [ 'BNP 1850 pg/mL — indicates severe decompensated heart failure', 'SpO2 88% — severe hypoxemia, immediate oxygen needed', 'Potassium 5.2 mEq/L — elevated, monitor closely', 'Creatinine 1.8 mg/dL — acute kidney injury likely from diuretic overuse', 'Age 70 with COPD + CHF — high mortality risk' ], riskFactors: [ 'Age > 70 (highest mortality risk)', 'Dual cardiopulmonary disease', 'Acute exacerbation of chronic conditions', 'Possible fluid overload' ], medicationIssues: [ 'Diuretic dose doubled — monitor renal function and electrolytes', 'Inhaled corticosteroid + LABA initiated — appropriate for COPD', 'Beta-agonist may be needed for bronchospasm', 'Anticoagulation needed for CHF' ], chronicConditions: ['COPD', 'Congestive Heart Failure', 'Chronic Kidney Disease'], recommendations: [ 'Continuous oxygen monitoring — target SpO2 > 92%', 'Daily weight and fluid balance monitoring', 'Add Enalapril or Sacubitril when stable for CHF', 'Start anticoagulation if atrial fibrillation or low EF', 'Pulmonary rehabilitation after stabilization', 'Annual influenza and pneumococcal vaccination', 'Home oxygen assessment for discharge planning', 'Close monitoring of K+ and Creatinine with high-dose diuretics' ], urgencyScore: 10 }
     };
 
-    // ============================================
-    // STATE MANAGEMENT
-    // ============================================
-
-    let currentView = 'dashboard';
+    // ====== STATE ======
+    let currentView = 'landing';
     let selectedPatientId = null;
     let showConsent = false;
     let searchQuery = '';
+    let currentFilter = 'all';
+    let docsTab = 'overview';
 
-    // ============================================
-    // UTILITY FUNCTIONS
-    // ============================================
-
+    // ====== HELPERS ======
     function getInsight(patientId, visits, patient) {
-      if (aiInsights[patientId]) {
-        return aiInsights[patientId];
-      }
+      if (aiInsights[patientId]) return aiInsights[patientId];
       const lastVisit = visits[0];
       return {
-        summary: lastVisit
-          ? `Patient ${patient.name} (${patient.age} years, ${patient.gender}) with ${lastVisit.diagnosis.toLowerCase()}. Last visited ${lastVisit.facility} on ${lastVisit.date}. ${lastVisit.notes}`
-          : 'No visits recorded yet. Complete initial assessment.',
+        summary: lastVisit ? 'Patient ' + patient.name + ' (' + patient.age + ' years, ' + patient.gender + ') with ' + lastVisit.diagnosis.toLowerCase() + '. Last visited ' + lastVisit.facility + ' on ' + lastVisit.date + '. ' + lastVisit.notes : 'No visits recorded yet.',
         criticalAlerts: ['No critical alerts at this time'],
         riskFactors: ['Age-related risk factors', 'Lifestyle factors', 'Family history if documented'],
         medicationIssues: visits.flatMap(v => v.prescriptions).length > 0 ? ['Review medication adherence at next visit'] : ['No current medications'],
@@ -1749,537 +2857,243 @@
         urgencyScore: patient.urgencyLevel === 'critical' ? 8 : patient.urgencyLevel === 'high' ? 6 : patient.urgencyLevel === 'medium' ? 4 : 2
       };
     }
-
     function getUrgencyClass(level) {
-      const classes = {
-        critical: 'urgency-critical',
-        high: 'urgency-high',
-        medium: 'urgency-medium',
-        low: 'urgency-low'
-      };
-      return classes[level] || 'urgency-low';
+      return { critical: 'urgency-critical', high: 'urgency-high', medium: 'urgency-medium', low: 'urgency-low' }[level] || 'urgency-low';
     }
-
     function getUrgencyColor(level) {
-      const colors = {
-        critical: '#ef4444',
-        high: '#f97316',
-        medium: '#fbbf24',
-        low: '#10b981'
-      };
-      return colors[level] || '#10b981';
+      return { critical: '#ef4444', high: '#f97316', medium: '#eab308', low: '#10b981' }[level] || '#10b981';
+    }
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
     }
 
-    // ============================================
-    // RENDER FUNCTIONS
-    // ============================================
-
-    function renderDashboard() {
-      const criticalCount = patients.filter(p => p.urgencyLevel === 'critical').length;
-      const highCount = patients.filter(p => p.urgencyLevel === 'high').length;
-      const filtered = patients.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.abhaId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.village.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-
-      return `
-        <div class="main fade-in">
-          <div class="header">
-            <div class="header-content">
-              <div>
-                <h2>Dashboard</h2>
-                <p>Welcome back, Dr. S. Verma — Primary Health Center, Rampur</p>
-              </div>
-              <div class="header-actions">
-                <button class="btn btn-secondary">📅 Today: Oct 10, 2025</button>
-                <button class="btn btn-primary">+ New Consultation</button>
-              </div>
-            </div>
-          </div>
-          <div class="content">
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div>
-                    <div class="stat-label">Total Patients</div>
-                    <div class="stat-value">${patients.length}</div>
-                  </div>
-                  <div class="stat-icon" style="background: #dbeafe; color: #3b82f6;">👥</div>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div>
-                    <div class="stat-label">Critical Cases</div>
-                    <div class="stat-value" style="color: var(--critical);">${criticalCount}</div>
-                  </div>
-                  <div class="stat-icon" style="background: #fee2e2; color: var(--critical);">🚨</div>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div>
-                    <div class="stat-label">High Priority</div>
-                    <div class="stat-value" style="color: var(--high);">${highCount}</div>
-                  </div>
-                  <div class="stat-icon" style="background: #ffedd5; color: var(--high);">⚠️</div>
-                </div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div>
-                    <div class="stat-label">Today's Visits</div>
-                    <div class="stat-value" style="color: var(--primary);">12</div>
-                  </div>
-                  <div class="stat-icon" style="background: #dbeafe; color: var(--primary);">📅</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="patient-list">
-              <div class="list-header">
-                <h3>Patient Registry (${filtered.length})</h3>
-                <div class="search-box">
-                  <input type="text" placeholder="Search patients..." value="${searchQuery}" oninput="updateSearch(this.value)">
-                </div>
-              </div>
-              <div class="list-body">
-                ${filtered.map(patient => renderPatientRow(patient)).join('')}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+    // ====== NAVIGATION ======
+    function navigateTo(view) {
+      currentView = view;
+      if (view === 'dashboard') selectedPatientId = null;
+      if (view === 'docs') docsTab = 'overview';
+      render();
+    }
+    function navigateToPatient(id) {
+      selectedPatientId = id;
+      currentView = 'patientDetail';
+      render();
+    }
+    function filterPatients() {
+      searchQuery = document.getElementById('searchInput').value;
+      renderPatientTable();
+    }
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      const map = { all: 'filterAll', critical: 'filterCritical', high: 'filterHigh', medium: 'filterMedium' };
+      const btn = document.getElementById(map[filter]);
+      if (btn) btn.classList.add('active');
+      renderPatientTable();
     }
 
-    function renderPatientRow(patient) {
-      return `
-        <div class="patient-item" onclick="navigateToPatient('${patient.id}')">
-          <div class="patient-avatar">${patient.avatar}</div>
-          <div class="patient-info">
-            <div class="patient-name">${patient.name}</div>
-            <div class="patient-meta">
-              <span>${patient.age}y, ${patient.gender}</span>
-              <span>${patient.abhaId}</span>
-              <span>📍 ${patient.village}</span>
-            </div>
-            <div class="patient-meta" style="margin-top: 4px;">
-              <span>Last visit: ${patient.lastVisit}</span>
-              <span>${patient.totalVisits} visits</span>
-            </div>
-          </div>
-          <span class="urgency-badge ${getUrgencyClass(patient.urgencyLevel)}">${patient.urgencyLevel}</span>
-        </div>
-      `;
+    // ====== PATIENT TABLE ======
+    function renderPatientTable() {
+      const q = (searchQuery || '').toLowerCase();
+      const filtered = patients.filter(p => {
+        const matchSearch = !q || p.name.toLowerCase().includes(q) || p.abhaId.toLowerCase().includes(q) || p.village.toLowerCase().includes(q);
+        const matchFilter = currentFilter === 'all' || p.urgencyLevel === currentFilter;
+        return matchSearch && matchFilter;
+      });
+      const countEl = document.getElementById('patientCount');
+      if (countEl) countEl.textContent = filtered.length + ' patient' + (filtered.length !== 1 ? 's' : '') + ' registered';
+      const table = document.getElementById('patientTable');
+      if (!table) return;
+      table.innerHTML = '<div class="patient-row patient-row-header"><div>Patient</div><div>ABHA ID</div><div>Last Visit</div><div>Visits</div><div>Village</div><div>Urgency</div></div>' +
+        filtered.map(p => '<div class="patient-row" onclick="navigateToPatient(\'' + p.id + '\')">' +
+          '<div class="patient-cell-name"><div class="patient-cell-avatar">' + esc(p.avatar) + '</div><div><div class="patient-cell-name-text">' + esc(p.name) + '</div><div class="patient-cell-meta">' + esc(p.age + 'y, ' + p.gender) + '</div></div></div>' +
+          '<div class="patient-cell-id">' + esc(p.abhaId) + '</div>' +
+          '<div class="patient-cell">' + esc(p.lastVisit) + '</div>' +
+          '<div class="patient-cell">' + esc(String(p.totalVisits)) + '</div>' +
+          '<div class="patient-cell">' + esc(p.village) + '</div>' +
+          '<div><span class="urgency-badge-sm ' + getUrgencyClass(p.urgencyLevel) + '">' + p.urgencyLevel + '</span></div>' +
+        '</div>').join('');
     }
 
+    // ====== PATIENT DETAIL ======
     function renderPatientDetail(patient) {
       const visits = visitsData[patient.id] || [];
       const insight = getInsight(patient.id, visits, patient);
-
-      return `
-        <div class="main fade-in">
-          <div class="header">
-            <div class="header-content">
-              <div>
-                <h2>Patient Record</h2>
-                <p>ABHA-linked Health Record — AI-Enhanced Clinical View</p>
-              </div>
-              <div class="header-actions">
-                <button class="btn btn-secondary" onclick="navigateToDashboard()">← Back to Dashboard</button>
-              </div>
-            </div>
-          </div>
-          <div class="content">
-            <div class="patient-header">
-              <div class="patient-header-top">
-                <div class="patient-identity">
-                  <div class="patient-avatar-large">${patient.avatar}</div>
-                  <div>
-                    <h1 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">${patient.name}</h1>
-                    <div class="patient-meta" style="font-size: 14px;">
-                      <span>${patient.age} years, ${patient.gender}</span>
-                      <span>${patient.abhaId}</span>
-                      <span>Blood: ${patient.bloodGroup}</span>
-                    </div>
-                    <div class="patient-meta" style="margin-top: 8px;">
-                      <span>📱 ${patient.phone}</span>
-                      <span>📍 ${patient.village}</span>
-                      <span>🚨 Emergency: ${patient.emergencyContact}</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="urgency-score">
-                  <div class="urgency-score-label">Urgency Score</div>
-                  <div class="urgency-score-value">${insight.urgencyScore}</div>
-                  <div class="urgency-score-max">/10</div>
-                </div>
-              </div>
-              <div class="patient-details-grid">
-                <div class="detail-item">
-                  <div class="detail-label">ABHA ID</div>
-                  <div class="detail-value" style="font-family: monospace; font-size: 12px;">${patient.abhaId}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Blood Group</div>
-                  <div class="detail-value">${patient.bloodGroup}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Total Visits</div>
-                  <div class="detail-value">${patient.totalVisits}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Registered</div>
-                  <div class="detail-value">${patient.registeredAt}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Last Visit</div>
-                  <div class="detail-value">${patient.lastVisit}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Allergies</div>
-                  <div class="detail-value" style="color: var(--critical);">${patient.allergies.join(', ')}</div>
-                </div>
-              </div>
-            </div>
-
-            ${insight.criticalAlerts.length > 0 && insight.criticalAlerts[0] !== 'No critical alerts at this time' ? `
-              <div class="alert-section slide-in">
-                <div class="alert-header">
-                  <span class="alert-icon">🚨</span>
-                  <span class="alert-title">Critical Alerts</span>
-                </div>
-                ${insight.criticalAlerts.map(alert => `
-                  <div class="alert-item">${alert}</div>
-                `).join('')}
-              </div>
-            ` : ''}
-
-            <div class="ai-section">
-              <div class="section-title">🤖 AI-Generated Clinical Summary</div>
-              <div class="ai-summary">${insight.summary}</div>
-            </div>
-
-            <div class="two-column">
-              <div class="info-card">
-                <h3>⚠️ Risk Factors</h3>
-                <ul class="info-list">
-                  ${insight.riskFactors.map(risk => `<li>${risk}</li>`).join('')}
-                </ul>
-              </div>
-              <div class="info-card">
-                <h3>🏥 Chronic Conditions</h3>
-                <ul class="info-list">
-                  ${insight.chronicConditions.map(condition => `<li>${condition}</li>`).join('')}
-                </ul>
-              </div>
-            </div>
-
-            <div class="recommendations">
-              <div class="section-title">💡 Clinical Recommendations</div>
-              ${insight.recommendations.map((rec, idx) => `
-                <div class="recommendation-item">
-                  <div class="recommendation-number">${idx + 1}</div>
-                  <div class="recommendation-text">${rec}</div>
-                </div>
-              `).join('')}
-            </div>
-
-            <div class="visits-section">
-              <div class="visits-header">
-                <h3>Visit History (${visits.length} visits)</h3>
-              </div>
-              ${visits.map(visit => renderVisitCard(visit)).join('')}
-            </div>
-
-            <div class="allergies-section">
-              <h3 style="font-weight: 600; margin-bottom: 12px; font-size: 15px;">⚠️ Allergies & Safety Alerts</h3>
-              <div class="allergy-tags">
-                ${patient.allergies.map(allergy => `
-                  <span class="allergy-tag">⚠️ ${allergy}</span>
-                `).join('')}
-              </div>
-              <div class="emergency-contact">
-                🚨 Emergency Contact: ${patient.emergencyContact}
-              </div>
-            </div>
-
-            <button class="consent-btn" onclick="showConsentModal()">
-              🔒 Manage ABHA Consent & Privacy Settings
-            </button>
-          </div>
-        </div>
-        ${showConsent ? renderConsentModal(patient) : ''}
-      `;
+      let html = '<div class="detail-header">' +
+        '<div class="detail-header-left">' +
+          '<button class="back-btn" onclick="navigateTo(\'dashboard\')">←</button>' +
+          '<div class="detail-header-title"><h2>Patient Record</h2><p>ABHA-linked Health Record — AI-Enhanced Clinical View</p></div>' +
+        '</div>' +
+        '<div class="detail-header-actions">' +
+          '<button class="btn-sm">📄 Export</button>' +
+          '<button class="btn-sm">📋 Print</button>' +
+          '<button class="btn-sm btn-sm-primary">+ New Consultation</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="detail-content">' +
+        '<div class="detail-hero">' +
+          '<div class="detail-hero-top">' +
+            '<div class="detail-patient-identity">' +
+              '<div class="detail-avatar">' + esc(patient.avatar) + '</div>' +
+              '<div>' +
+                '<div class="detail-name">' + esc(patient.name) + '</div>' +
+                '<div class="detail-meta-row"><span class="detail-meta-item">' + esc(patient.age + ' years, ' + patient.gender) + '</span><span class="detail-meta-item">' + esc(patient.abhaId) + '</span><span class="detail-meta-item">🩸 ' + esc(patient.bloodGroup) + '</span></div>' +
+                '<div class="detail-meta-row"><span class="detail-meta-item">📱 ' + esc(patient.phone) + '</span><span class="detail-meta-item">📍 ' + esc(patient.village) + '</span><span class="detail-meta-item">🚨 ' + esc(patient.emergencyContact) + '</span></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="urgency-score-card urgency-score-card-' + patient.urgencyLevel + '">' +
+              '<div class="urgency-score-number" style="color:' + getUrgencyColor(patient.urgencyLevel) + '">' + insight.urgencyScore + '</div>' +
+              '<div class="urgency-score-text">Urgency Score</div>' +
+              '<div class="urgency-score-max">/10</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="detail-info-grid">' +
+            '<div class="detail-info-item"><div class="detail-info-label">ABHA ID</div><div class="detail-info-value" style="font-family:monospace;font-size:12px;">' + esc(patient.abhaId) + '</div></div>' +
+            '<div class="detail-info-item"><div class="detail-info-label">Blood Group</div><div class="detail-info-value">' + esc(patient.bloodGroup) + '</div></div>' +
+            '<div class="detail-info-item"><div class="detail-info-label">Total Visits</div><div class="detail-info-value">' + esc(String(patient.totalVisits)) + '</div></div>' +
+            '<div class="detail-info-item"><div class="detail-info-label">Registered</div><div class="detail-info-value">' + esc(patient.registeredAt) + '</div></div>' +
+            '<div class="detail-info-item"><div class="detail-info-label">Last Visit</div><div class="detail-info-value">' + esc(patient.lastVisit) + '</div></div>' +
+            '<div class="detail-info-item"><div class="detail-info-label">Allergies</div><div class="detail-info-value" style="color:var(--critical);">' + esc(patient.allergies.join(', ')) + '</div></div>' +
+          '</div>' +
+        '</div>' +
+        (insight.criticalAlerts.length > 0 && insight.criticalAlerts[0] !== 'No critical alerts at this time' ?
+          '<div class="alert-banner"><div class="alert-banner-header"><span style="font-size:28px;">🚨</span><span class="alert-banner-title">Critical Alerts</span></div>' +
+          insight.criticalAlerts.map(a => '<div class="alert-item">' + esc(a) + '</div>').join('') + '</div>' : '') +
+        '<div class="content-card"><div class="content-card-title">🤖 AI-Generated Clinical Summary</div><div class="ai-summary-box">' + esc(insight.summary) + '</div></div>' +
+        '<div class="two-col">' +
+          '<div class="content-card"><div class="content-card-title">⚠️ Risk Factors</div><ul class="info-list">' + insight.riskFactors.map(r => '<li>' + esc(r) + '</li>').join('') + '</ul></div>' +
+          '<div class="content-card"><div class="content-card-title">🏥 Chronic Conditions</div><ul class="info-list">' + insight.chronicConditions.map(c => '<li>' + esc(c) + '</li>').join('') + '</ul></div>' +
+        '</div>' +
+        '<div class="content-card"><div class="content-card-title">💡 Clinical Recommendations</div>' +
+          insight.recommendations.map((rec, idx) => '<div class="rec-item"><div class="rec-number">' + (idx + 1) + '</div><div class="rec-text">' + esc(rec) + '</div></div>').join('') +
+        '</div>' +
+        '<div class="content-card">' +
+          '<div class="content-card-title">📋 Visit History</div>' +
+          '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">' + visits.length + ' visit' + (visits.length !== 1 ? 's' : '') + ' on record</div>' +
+          visits.map(v => '<div class="visit-card">' +
+            '<div class="visit-card-header"><div><span class="visit-type-badge">' + esc(v.type) + '</span><span style="margin-left:12px;font-size:12px;color:var(--text-muted);">' + esc(v.date) + '</span></div><span style="font-size:12px;color:var(--text-muted);">' + esc(v.facility) + '</span></div>' +
+            '<div class="visit-card-body">' +
+              '<div class="visit-diagnosis">' + esc(v.diagnosis) + '</div>' +
+              '<div class="visit-symptoms">' + v.symptoms.map(s => '<span class="symptom-chip">' + esc(s) + '</span>').join('') + '</div>' +
+              '<div class="vitals-grid">' + Object.entries(v.vitals).filter(([_, val]) => val).map(([k, val]) => '<div class="vital-box"><div class="vital-box-label">' + esc(k) + '</div><div class="vital-box-value">' + esc(val) + '</div></div>').join('') + '</div>' +
+              (v.prescriptions.length > 0 ? '<div style="margin-top:20px;"><div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Prescriptions</div>' + v.prescriptions.map(rx => '<div class="prescription-box"><div class="prescription-name">' + esc(rx.medication) + '</div><div class="prescription-detail">' + esc(rx.dosage + ' • ' + rx.frequency + ' • ' + rx.duration) + '</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;font-style:italic;">' + esc(rx.instructions) + '</div></div>').join('') + '</div>' : '') +
+              (v.labResults.length > 0 ? '<div style="margin-top:20px;"><div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Lab Results</div><table class="lab-table"><thead><tr><th>Test</th><th>Date</th><th>Value</th><th>Reference</th><th>Status</th></tr></thead><tbody>' + v.labResults.map(lab => '<tr><td>' + esc(lab.test) + '</td><td>' + esc(lab.date) + '</td><td><strong>' + esc(lab.value + ' ' + lab.unit) + '</strong></td><td>' + esc(lab.referenceRange) + '</td><td><span class="lab-badge lab-' + lab.status + '-badge">' + lab.status + '</span></td></tr>').join('') + '</tbody></table></div>' : '') +
+              (v.notes ? '<div style="margin-top:20px;"><div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Clinical Notes</div><p style="background:#fffbeb;border:1px solid #fde68a;padding:12px;border-radius:8px;font-size:13px;font-style:italic;color:#92400e;">' + esc(v.notes) + '</p></div>' : '') +
+            '</div>' +
+          '</div>').join('') +
+        '</div>' +
+        '<div class="allergy-banner"><div style="font-weight:600;font-size:15px;margin-bottom:12px;">⚠️ Allergies & Safety Alerts</div><div class="allergy-tags">' + patient.allergies.map(a => '<span class="allergy-tag">⚠️ ' + esc(a) + '</span>').join('') + '</div><div class="emergency-box">🚨 Emergency Contact: ' + esc(patient.emergencyContact) + '</div></div>' +
+        '<button class="consent-trigger" onclick="showConsentModal()">🔒 Manage ABHA Consent & Privacy Settings</button>' +
+      '</div>' +
+      (showConsent ? renderConsentModal(patient) : '');
+      return html;
     }
 
-    function renderVisitCard(visit) {
-      return `
-        <div class="visit-card">
-          <div class="visit-header">
-            <div>
-              <span class="visit-type">${visit.type}</span>
-              <span class="visit-date" style="margin-left: 12px;">${visit.date}</span>
-            </div>
-            <span class="visit-date">${visit.facility}</span>
-          </div>
-          <div class="visit-diagnosis">${visit.diagnosis}</div>
-          <div class="visit-symptoms">
-            ${visit.symptoms.map(s => `<span class="symptom-tag">${s}</span>`).join('')}
-          </div>
-
-          <div class="visit-details">
-            <div class="detail-section">
-              <h4>Vitals</h4>
-              <div class="vitals-grid">
-                ${Object.entries(visit.vitals).filter(([_, v]) => v).map(([key, value]) => `
-                  <div class="vital-card">
-                    <div class="vital-label">${key}</div>
-                    <div class="vital-value">${value}</div>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            ${visit.prescriptions.length > 0 ? `
-              <div class="detail-section">
-                <h4>Prescriptions</h4>
-                ${visit.prescriptions.map(rx => `
-                  <div style="background: #dbeafe; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                    <div style="font-weight: 600; font-size: 13px;">${rx.medication}</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                      ${rx.dosage} • ${rx.frequency} • ${rx.duration}
-                    </div>
-                    <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-style: italic;">${rx.instructions}</div>
-                  </div>
-                `).join('')}
-              </div>
-            ` : ''}
-
-            ${visit.labResults.length > 0 ? `
-              <div class="detail-section">
-                <h4>Lab Results</h4>
-                <table class="lab-table">
-                  <thead>
-                    <tr>
-                      <th>Test</th>
-                      <th>Date</th>
-                      <th>Value</th>
-                      <th>Reference Range</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${visit.labResults.map(lab => `
-                      <tr>
-                        <td>${lab.test}</td>
-                        <td>${lab.date}</td>
-                        <td><strong>${lab.value} ${lab.unit}</strong></td>
-                        <td>${lab.referenceRange}</td>
-                        <td><span class="lab-status lab-${lab.status}">${lab.status}</span></td>
-                      </tr>
-                    `).join('')}
-                  </tbody>
-                </table>
-              </div>
-            ` : ''}
-
-            ${visit.notes ? `
-              <div class="detail-section">
-                <h4>Doctor's Clinical Notes</h4>
-                <p style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 8px; font-size: 13px; font-style: italic; color: #92400e;">
-                  ${visit.notes}
-                </p>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      `;
-    }
-
+    // ====== CONSENT MODAL ======
     function renderConsentModal(patient) {
-      return `
-        <div class="modal-overlay active" onclick="hideConsentModal(event)">
-          <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-header">
-              <div>
-                <h2>Consent & Privacy Management</h2>
-                <p>ABHA-linked Health Records — ABDM Compliance</p>
-              </div>
-              <button class="modal-close" onclick="hideConsentModal()">×</button>
-            </div>
-            <div class="modal-body">
-              <div>
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">
-                  ${patient.name} (${patient.abhaId})
-                </h3>
-                <div class="consent-info">
-                  <h4>🔐 ABHA Consent Framework</h4>
-                  <p>This patient has provided informed consent for access to their health records through the Ayushman Bharat Digital Health Mission (ABDM) framework. All access is logged, auditable, and compliant with the Digital Personal Data Protection Act (DPDPA).</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Consent Permissions</h4>
-                ${[
-                  { label: 'Health Record Access', desc: 'Full access to ABHA-linked health records', active: true },
-                  { label: 'Diagnostic Data Sharing', desc: 'Lab results and diagnostic reports', active: true },
-                  { label: 'Medication History Access', desc: 'Current and past prescriptions', active: true },
-                  { label: 'Research Participation', desc: 'Anonymous data for research', active: false },
-                  { label: 'SMS/Notification', desc: 'Appointment reminders and health alerts', active: true }
-                ].map(item => `
-                  <div class="consent-item">
-                    <div>
-                      <div class="consent-item-label">${item.label}</div>
-                      <div class="consent-item-desc">${item.desc}</div>
-                    </div>
-                    <span class="consent-status ${item.active ? 'consent-active' : 'consent-inactive'}">
-                      ${item.active ? 'Active' : 'Declined'}
-                    </span>
-                  </div>
-                `).join('')}
-              </div>
-
-              <div class="access-log">
-                <h4>Access Audit Log</h4>
-                ${[
-                  { date: '2025-10-10', doctor: 'Dr. S. Verma', action: 'Viewed full patient record', ip: '10.0.1.45' },
-                  { date: '2025-10-08', doctor: 'Dr. S. Verma', action: 'Updated consultation notes', ip: '10.0.1.45' },
-                  { date: '2025-09-24', doctor: 'Dr. S. Verma', action: 'Accessed lab results', ip: '10.0.1.45' },
-                  { date: '2025-09-10', doctor: 'Dr. R. Gupta', action: 'Accessed via referral', ip: '10.0.2.12' }
-                ].map(log => `
-                  <div class="log-entry">
-                    <span class="log-date">${log.date}</span>
-                    <span class="log-action">${log.doctor} — ${log.action}</span>
-                    <span class="log-ip">${log.ip}</span>
-                  </div>
-                `).join('')}
-              </div>
-
-              <div class="compliance-box">
-                <h4>🛡️ Privacy & Compliance Information</h4>
-                <ul>
-                  <li>All access is logged per ABDM and DPDPA guidelines</li>
-                  <li>Records accessed only with explicit patient consent</li>
-                  <li>End-to-end encryption for data in transit and at rest</li>
-                  <li>Access limited to authorized treating physicians only</li>
-                  <li>Patients can revoke consent at any time</li>
-                </ul>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" onclick="hideConsentModal()">Close</button>
-              <button class="btn btn-primary">Modify Consent Settings</button>
-            </div>
-          </div>
-        </div>
-      `;
+      const items = [
+        { label: 'Health Record Access', desc: 'Full access to ABHA-linked health records', active: true },
+        { label: 'Diagnostic Data Sharing', desc: 'Lab results and diagnostic reports', active: true },
+        { label: 'Medication History Access', desc: 'Current and past prescriptions', active: true },
+        { label: 'Research Participation', desc: 'Anonymous data for medical research', active: false },
+        { label: 'SMS/Notification', desc: 'Appointment reminders and health alerts', active: true }
+      ];
+      const logs = [
+        { date: '2025-10-10', doctor: 'Dr. S. Verma', action: 'Viewed full patient record', ip: '10.0.1.45' },
+        { date: '2025-10-08', doctor: 'Dr. S. Verma', action: 'Updated consultation notes', ip: '10.0.1.45' },
+        { date: '2025-09-24', doctor: 'Dr. S. Verma', action: 'Accessed lab results', ip: '10.0.1.45' },
+        { date: '2025-09-10', doctor: 'Dr. R. Gupta', action: 'Accessed via referral', ip: '10.0.2.12' }
+      ];
+      return '<div class="modal-overlay open" onclick="hideConsentModal()"><div class="modal" onclick="event.stopPropagation()">' +
+        '<div class="modal-header"><div><h2>Consent & Privacy Management</h2><p>ABHA-linked Health Records — ABDM Compliance</p></div><button class="modal-close" onclick="hideConsentModal()">×</button></div>' +
+        '<div class="modal-body">' +
+          '<div style="margin-bottom:8px;font-size:16px;font-weight:600;">' + (patient ? esc(patient.name + ' (' + patient.abhaId + ')') : 'Global Consent Settings') + '</div>' +
+          '<div class="consent-info-box"><h4>🔐 ABHA Consent Framework</h4><p>This patient has provided informed consent for access to their health records through the Ayushman Bharat Digital Health Mission (ABDM) framework. All access is logged, auditable, and compliant with DPDPA.</p></div>' +
+          '<div style="font-size:14px;font-weight:600;margin-bottom:12px;">Consent Permissions</div>' +
+          items.map(item => '<div class="consent-row"><div><div class="consent-row-label">' + esc(item.label) + '</div><div class="consent-row-desc">' + esc(item.desc) + '</div></div><span class="consent-status-badge ' + (item.active ? 'consent-on' : 'consent-off') + '">' + (item.active ? 'Active' : 'Declined') + '</span></div>').join('') +
+          '<div class="audit-log"><div class="audit-log-title">Access Audit Log</div>' +
+            logs.map(log => '<div class="audit-entry"><span class="audit-date">' + esc(log.date) + '</span><span class="audit-action">' + esc(log.doctor + ' — ' + log.action) + '</span><span class="audit-ip">' + esc(log.ip) + '</span></div>').join('') +
+          '</div>' +
+          '<div class="compliance-note"><h4>🛡️ Privacy & Compliance</h4><ul><li>All access is logged per ABDM and DPDPA guidelines</li><li>Records accessed only with explicit patient consent</li><li>End-to-end encryption for data in transit and at rest</li><li>Access limited to authorized treating physicians only</li><li>Patients can revoke consent at any time</li></ul></div>' +
+        '</div>' +
+        '<div class="modal-footer"><button class="btn-sm" onclick="hideConsentModal()">Close</button><button class="btn-sm btn-sm-primary" onclick="alert(\'Consent settings updated\')">Save Changes</button></div>' +
+      '</div></div>';
     }
 
-    function renderSidebar() {
-      return `
-        <div class="sidebar">
-          <div class="logo">
-            <h1>AarogyaAI</h1>
-            <p>Triage Assistant</p>
-          </div>
-          <nav>
-            <button class="nav-item ${currentView === 'dashboard' ? 'active' : ''}" onclick="navigateToDashboard()">
-              <span class="nav-icon">📊</span>
-              Dashboard
-            </button>
-            <button class="nav-item" onclick="alert('Coming soon!')">
-              <span class="nav-icon">👥</span>
-              Patients
-            </button>
-            <button class="nav-item" onclick="alert('Coming soon!')">
-              <span class="nav-icon">🩺</span>
-              Consultations
-            </button>
-            <button class="nav-item" onclick="alert('Coming soon!')">
-              <span class="nav-icon">📋</span>
-              Reports
-            </button>
-          </nav>
-          <div class="sidebar-footer">
-            <button class="nav-item" style="padding: 12px 0;" onclick="showConsentModalGlobal()">
-              <span class="nav-icon">🔒</span>
-              Consent Management
-            </button>
-            <div class="doctor-info" style="margin-top: 16px;">
-              <div class="doctor-avatar">👨‍⚕️</div>
-              <div class="doctor-details">
-                <h4>Dr. S. Verma</h4>
-                <p>PHC Rampur</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+    function showConsentModal() { showConsent = true; render(); }
+    function hideConsentModal() { showConsent = false; render(); }
+
+    // ====== DOCS ======
+    function showDocsTab(tab) {
+      docsTab = tab;
+      document.querySelectorAll('.docs-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      renderDocsContent();
     }
 
-    // ============================================
-    // NAVIGATION & INTERACTION
-    // ============================================
-
-    function navigateToPatient(patientId) {
-      selectedPatientId = patientId;
-      currentView = 'patient';
-      render();
-    }
-
-    function navigateToDashboard() {
-      currentView = 'dashboard';
-      selectedPatientId = null;
-      render();
-    }
-
-    function updateSearch(value) {
-      searchQuery = value;
-      currentView = 'dashboard';
-      render();
-    }
-
-    function showConsentModal() {
-      showConsent = true;
-      render();
-    }
-
-    function showConsentModalGlobal() {
-      selectedPatientId = null;
-      showConsent = true;
-      currentView = 'patient';
-      render();
-    }
-
-    function hideConsentModal(event) {
-      if (!event || event.target.classList.contains('modal-overlay') || event.target.classList.contains('modal-close')) {
-        showConsent = false;
-        render();
+    function renderDocsContent() {
+      const el = document.getElementById('docsContent');
+      if (!el) return;
+      if (docsTab === 'overview') {
+        el.innerHTML = '<h2>System Overview</h2><p>AarogyaAI is an AI-native diagnostic triage assistant that integrates with the Ayushman Bharat Digital Health Mission (ABDM) ecosystem to provide PHC doctors with instant, relevant patient context during consultations.</p><h3>Key Capabilities</h3><ul><li><strong>ABHA-Native Integration:</strong> Direct integration with ABDM Health Locker API for seamless health record access</li><li><strong>AI-Powered Summarization:</strong> NLP engine that condenses years of medical history into actionable insights</li><li><strong>Real-Time Alerts:</strong> Critical red-flag detection for allergies, abnormal lab results, and urgent follow-ups</li><li><strong>Consent Management:</strong> Granular, auditable consent framework compliant with DPDP Act</li><li><strong>Offline-First Design:</strong> Works in low-connectivity rural areas with sync when online</li></ul><div class="highlight-box"><div class="highlight-box-title">Technology Stack</div><p><strong>Frontend:</strong> Next.js 14, TypeScript, Tailwind CSS, Recharts<br><strong>Backend:</strong> Node.js, PostgreSQL, Redis<br><strong>AI/ML:</strong> OpenAI GPT-4 / Claude, custom risk-scoring models<br><strong>Infrastructure:</strong> Vercel, Railway, Sentry</p></div>';
+      } else if (docsTab === 'api') {
+        el.innerHTML = '<h2>API Reference</h2><p>RESTful API endpoints for integrating AarogyaAI with external systems.</p><h3>Authentication</h3><table><thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>/api/auth/abha/login</code></td><td>POST</td><td>Initiate ABHA OAuth login flow</td></tr><tr><td><code>/api/auth/abha/callback</code></td><td>GET</td><td>OAuth callback handler</td></tr><tr><td><code>/api/auth/refresh</code></td><td>POST</td><td>Refresh JWT token</td></tr></tbody></table><h3>Patients</h3><table><thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>/api/patients</code></td><td>GET</td><td>List all patients (paginated)</td></tr><tr><td><code>/api/patients/:id</code></td><td>GET</td><td>Get patient details with visits</td></tr><tr><td><code>/api/patients/:id/insights</code></td><td>GET</td><td>Get AI-generated insights</td></tr><tr><td><code>/api/patients/:id/visits</code></td><td>GET</td><td>Get visit history</td></tr></tbody></table><h3>Consent</h3><table><thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>/api/consent/:patientId</code></td><td>GET</td><td>Check consent status</td></tr><tr><td><code>/api/consent/request</code></td><td>POST</td><td>Request patient consent via ABDM</td></tr><tr><td><code>/api/consent/:patientId</code></td><td>PUT</td><td>Update consent permissions</td></tr></tbody></table>';
+      } else if (docsTab === 'models') {
+        el.innerHTML = '<h2>Data Models</h2><p>TypeScript interfaces defining the core data structures.</p><h3>Patient</h3><div class="highlight-box"><div class="highlight-box-title">interface Patient</div><p>{ abhaId: string; name: string; age: number; gender: "Male" | "Female" | "Other"; phone: string; village: string; bloodGroup: string; allergies: string[]; emergencyContact: string; registeredAt: string; lastVisit: string; totalVisits: number; urgencyLevel: "critical" | "high" | "medium" | "low"; }</p></div><h3>Visit</h3><div class="highlight-box"><div class="highlight-box-title">interface Visit</div><p>{ id: string; date: string; type: string; facility: string; doctor: string; diagnosis: string; symptoms: string[]; vitals: Vitals; notes: string; prescriptions: Prescription[]; labResults: LabResult[]; followUpDate?: string; }</p></div><h3>AI Insight</h3><div class="highlight-box"><div class="highlight-box-title">interface AIInsight</div><p>{ summary: string; criticalAlerts: string[]; riskFactors: string[]; medicationIssues: string[]; chronicConditions: string[]; recommendations: string[]; urgencyScore: 0-10; }</p></div><h3>Consent</h3><div class="highlight-box"><div class="highlight-box-title">interface Consent</div><p>{ patientId: string; permissions: ConsentPermission[]; grantedAt: string; expiresAt: string; accessLog: AccessLogEntry[]; }</p></div>';
+      } else if (docsTab === 'deploy') {
+        el.innerHTML = '<h2>Deployment Guide</h2><p>Step-by-step deployment instructions for production environments.</p><h3>Prerequisites</h3><ul><li>Node.js 18+ and npm/yarn</li><li>PostgreSQL database</li><li>Redis cache server</li><li>ABDM sandbox/production credentials</li><li>OpenAI/Claude API key for AI engine</li></ul><h3>Environment Variables</h3><div class="highlight-box"><div class="highlight-box-title">.env.local</div><p>DATABASE_URL=postgresql://...<br>REDIS_URL=redis://...<br>ABHA_CLIENT_ID=...<br>ABHA_CLIENT_SECRET=...<br>OPENAI_API_KEY=...<br>JWT_SECRET=...</p></div><h3>Deployment Steps</h3><ul><li>Clone repository and run npm install</li><li>Set up PostgreSQL and run migrations</li><li>Configure environment variables</li><li>Run npm run build and npm start</li><li>Deploy to Vercel (frontend) and Railway/Render (backend)</li><li>Configure ABHA OAuth callback URLs</li></ul><h3>Monitoring</h3><ul><li>Sentry for error tracking</li><li>PostHog/Mixpanel for product analytics</li><li>Vercel Analytics for performance monitoring</li></ul>';
       }
     }
 
-    // ============================================
-    // MAIN RENDER
-    // ============================================
-
+    // ====== MAIN RENDER ======
     function render() {
-      const app = document.getElementById('app');
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      const navMap = { landing: 'navLanding', market: 'navMarket', architecture: 'navArchitecture', dashboard: 'navDashboard', docs: 'navDocs', patientDetail: 'navDashboard' };
+      const navId = navMap[currentView];
+      if (navId) { const el = document.getElementById(navId); if (el) el.classList.add('active'); }
 
-      if (currentView === 'dashboard') {
-        app.innerHTML = renderSidebar() + renderDashboard();
-      } else if (currentView === 'patient') {
-        const patient = selectedPatientId ? patients.find(p => p.id === selectedPatientId) : null;
-        if (patient) {
-          app.innerHTML = renderSidebar() + renderPatientDetail(patient);
-        } else {
-          app.innerHTML = renderSidebar() + renderDashboard();
+      ['sectionLanding', 'sectionArchitecture', 'sectionDashboard', 'sectionPatientDetail', 'sectionDocs'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.classList.remove('active'); el.style.display = 'none'; }
+      });
+
+      const footer = document.getElementById('mainFooter');
+      if (footer) footer.style.display = ['landing', 'market', 'architecture', 'docs'].includes(currentView) ? 'block' : 'none';
+
+      if (currentView === 'landing' || currentView === 'market') {
+        const el = document.getElementById('sectionLanding');
+        if (el) { el.classList.add('active'); el.style.display = 'block'; }
+        if (currentView === 'market') {
+          setTimeout(() => { const m = document.getElementById('marketSection'); if (m) m.scrollIntoView({ behavior: 'smooth' }); }, 100);
         }
+      } else if (currentView === 'architecture') {
+        const el = document.getElementById('sectionArchitecture');
+        if (el) { el.classList.add('active'); el.style.display = 'block'; }
+      } else if (currentView === 'dashboard') {
+        const el = document.getElementById('sectionDashboard');
+        if (el) { el.classList.add('active'); el.style.display = 'block'; }
+        selectedPatientId = null;
+        showConsent = false;
+        renderPatientTable();
+      } else if (currentView === 'patientDetail') {
+        const el = document.getElementById('sectionPatientDetail');
+        if (el) { el.classList.add('active'); el.style.display = 'block'; }
+        const patient = selectedPatientId ? patients.find(p => p.id === selectedPatientId) : null;
+        const container = document.getElementById('patientDetailContent');
+        if (container) {
+          if (patient) container.innerHTML = renderPatientDetail(patient);
+          else { navigateTo('dashboard'); return; }
+        }
+      } else if (currentView === 'docs') {
+        const el = document.getElementById('sectionDocs');
+        if (el) { el.classList.add('active'); el.style.display = 'block'; }
+        renderDocsContent();
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Initial render
     render();
   </script>
 </body>
