@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
+import Sidebar from '@/components/Sidebar'
+import PatientDetail from '@/components/PatientDetail'
 
 export const metadata: Metadata = {
-  title: 'AarogyaAI Triage',
-  description: 'AI-powered diagnostic triage assistant for Ayushman Bharat Health Records',
+  title: 'AarogyaAI Triage - Patient Detail',
+  description: 'AI-powered diagnostic triage assistant',
 }
 
 export default function RootLayout({
