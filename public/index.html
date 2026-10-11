@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AarogyaAI - Diagnostic Triage Assistant</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+  </style>
+</head>
+<body class="bg-slate-50">
+
+  <div id="app"></div>
+
+  <script>
+    const patients = [
+      { id: 'P001', name: 'Rajesh Kumar', age: 52, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0001', phone: '+91 98765 43210', village: 'Rampur', bloodGroup: 'B+', allergies: ['Penicillin'], emergencyContact: '+91 87654 32109', registeredAt: '2021-03-15', lastVisit: '2025-10-08', totalVisits: 24, urgencyLevel: 'high', avatar: 'RK' },
+      { id: 'P002', name: 'Priya Sharma', age: 28, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0002', phone: '+91 91234 56789', village: 'Shivpur', bloodGroup: 'A+', allergies: ['Sulfa drugs'], emergencyContact: '+91 82345 67890', registeredAt: '2022-01-10', lastVisit: '2025-10-10', totalVisits: 12, urgencyLevel: 'medium', avatar: 'PS' },
+      { id: 'P003', name: 'Mohammed Ali', age: 65, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0003', phone: '+91 93456 78901', village: 'Nagar', bloodGroup: 'O+', allergies: ['None known'], emergencyContact: '+91 94567 89012', registeredAt: '2020-07-22', lastVisit: '2025-10-05', totalVisits: 45, urgencyLevel: 'critical', avatar: 'MA' },
+      { id: 'P004', name: 'Sunita Devi', age: 35, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0004', phone: '+91 95678 90123', village: 'Chandanpur', bloodGroup: 'AB-', allergies: ['Dust', 'Pollen'], emergencyContact: '+91 96789 01234', registeredAt: '2023-05-18', lastVisit: '2025-09-28', totalVisits: 8, urgencyLevel: 'low', avatar: 'SD' },
+      { id: 'P005', name: 'Vikram Singh', age: 48, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0005', phone: '+91 97890 12345', village: 'Kotwali', bloodGroup: 'A-', allergies: ['Ibuprofen'], emergencyContact: '+91 88901 23456', registeredAt: '2019-11-30', lastVisit: '2025-10-09', totalVisits: 38, urgencyLevel: 'high', avatar: 'VS' },
+      { id: 'P006', name: 'Anjali Mehta', age: 42, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0006', phone: '+91 99012 34567', village: 'Gandhinagar', bloodGroup: 'B-', allergies: ['Aspirin'], emergencyContact: '+91 90123 45678', registeredAt: '2022-08-05', lastVisit: '2025-10-07', totalVisits: 16, urgencyLevel: 'medium', avatar: 'AM' },
+      { id: 'P007', name: 'Krishna Prasad', age: 70, gender: 'Male', abhaId: 'ABHA-XXXX-XXXX-0007', phone: '+91 88123 45678', village: 'Badepur', bloodGroup: 'O-', allergies: ['None known'], emergencyContact: '+91 79234 56789', registeredAt: '2018-02-14', lastVisit: '2025-10-10', totalVisits: 62, urgencyLevel: 'critical', avatar: 'KP' },
+      { id: 'P008', name: 'Lakshmi Iyer', age: 31, gender: 'Female', abhaId: 'ABHA-XXXX-XXXX-0008', phone: '+91 77345 67890', village: 'Temple Road', bloodGroup: 'A+', allergies: ['None known'], emergencyContact: '+91 66456 78901', registeredAt: '2024-01-20', lastVisit: '2025-09-15', totalVisits: 5, urgencyLevel: 'low', avatar: 'LI' },
+    ];
+
+    const visitsData = {
+      'P001': [
+        { id: 'V001-001', date: '2025-10-08', type: 'Follow-up', facility: 'Primary Health Center, Rampur', doctor: 'Dr. S. Verma', diagnosis: 'Type 2 Diabetes Mellitus - Uncontrolled', symptoms: ['Increased thirst', 'Frequent urination', 'Fatigue', 'Blurred vision'], vitals: { bp: '145/92 mmHg', pulse: '88 bpm', temperature: '37.2°C', weight: '78 kg', bmi: '27.4', bloodSugar: 'FBS 145 mg/dL, PPBS 218 mg/dL' }, notes: 'Patient reports poor dietary compliance. HbA1c rising over last 3 visits. Urgent medication review needed.', prescriptions: [{ medication: 'Metformin', dosage: '500mg', frequency: 'Twice daily', duration: '30 days', instructions: 'Take after meals' }, { medication: 'Glimepiride', dosage: '1mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take before breakfast' }], labResults: [{ test: 'HbA1c', date: '2025-10-08', value: '8.4%', status: 'critical', referenceRange: '< 7.0%' }, { test: 'Fasting Blood Sugar', date: '2025-10-08', value: '145', status: 'abnormal', referenceRange: '70-100 mg/dL' }, { test: 'Postprandial Blood Sugar', date: '2025-10-08', value: '218', status: 'critical', referenceRange: '< 140 mg/dL' }, { test: 'Creatinine', date: '2025-10-08', value: '1.2', status: 'normal', referenceRange: '0.7-1.3 mg/dL' }, { test: 'Urine Albumin', date: '2025-10-08', value: '30 mg/L', status: 'abnormal', referenceRange: '< 20 mg/L' }], followUpDate: '2025-10-22' },
+        { id: 'V001-002', date: '2025-09-24', type: 'Follow-up', facility: 'Primary Health Center, Rampur', doctor: 'Dr. S. Verma', diagnosis: 'Type 2 Diabetes Mellitus', symptoms: ['Fatigue', 'Mild polyuria'], vitals: { bp: '138/88 mmHg', pulse: '82 bpm', temperature: '37.0°C', weight: '77 kg', bloodSugar: 'FBS 132 mg/dL, PPBS 195 mg/dL' }, notes: 'Slight improvement. Continue current medication.', prescriptions: [{ medication: 'Metformin', dosage: '500mg', frequency: 'Twice daily', duration: '30 days', instructions: 'Take after meals' }], labResults: [{ test: 'HbA1c', date: '2025-09-24', value: '7.8%', status: 'abnormal', referenceRange: '< 7.0%' }, { test: 'Fasting Blood Sugar', date: '2025-09-24', value: '132', status: 'abnormal', referenceRange: '70-100 mg/dL' }, { test: 'Postprandial Blood Sugar', date: '2025-09-24', value: '195', status: 'critical', referenceRange: '< 140 mg/dL' }], followUpDate: '2025-10-08' },
+      ],
+      'P003': [
+        { id: 'V003-001', date: '2025-10-05', type: 'Emergency', facility: 'District Hospital', doctor: 'Dr. A. Khan', diagnosis: 'Acute Myocardial Infarction (Heart Attack)', symptoms: ['Chest pain', 'Sweating', 'Shortness of breath', 'Nausea', 'Left arm pain'], vitals: { bp: '100/60 mmHg', pulse: '110 bpm', temperature: '37.0°C', spo2: '94%' }, notes: 'Patient presented with severe chest pain. ECG shows ST-elevation. Thrombolysis administered. Transferred to CCU.', prescriptions: [{ medication: 'Aspirin', dosage: '325mg', frequency: 'Once daily', duration: 'Ongoing', instructions: 'Chew and swallow' }, { medication: 'Clopidogrel', dosage: '75mg', frequency: 'Once daily', duration: '12 months', instructions: 'Take with food' }, { medication: 'Atorvastatin', dosage: '80mg', frequency: 'Once daily', duration: 'Ongoing', instructions: 'Take at bedtime' }], labResults: [{ test: 'Troponin I', date: '2025-10-05', value: '15.2 ng/mL', status: 'critical', referenceRange: '< 0.04 ng/mL' }, { test: 'CK-MB', date: '2025-10-05', value: '45 U/L', status: 'critical', referenceRange: '< 25 U/L' }, { test: 'LDL Cholesterol', date: '2025-10-05', value: '145', status: 'abnormal', referenceRange: '< 100 mg/dL' }, { test: 'ECG', date: '2025-10-05', value: 'ST Elevation', status: 'critical', referenceRange: 'Normal' }], followUpDate: '2025-10-19' },
+      ],
+      'P005': [
+        { id: 'V005-001', date: '2025-10-09', type: 'Follow-up', facility: 'Primary Health Center, Kotwali', doctor: 'Dr. M. Joshi', diagnosis: 'Chronic Kidney Disease Stage 3', symptoms: ['Fatigue', 'Swelling in legs', 'Reduced urine output', 'Nausea'], vitals: { bp: '158/98 mmHg', pulse: '86 bpm', temperature: '37.1°C', weight: '72 kg', bmi: '26.1' }, notes: 'CKD progressing. Creatinine rising. Nephrology referral pending. Strict BP control needed.', prescriptions: [{ medication: 'Amlodipine', dosage: '10mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take in morning' }, { medication: 'Furosemide', dosage: '40mg', frequency: 'Once daily', duration: '30 days', instructions: 'Take in morning' }], labResults: [{ test: 'Creatinine', date: '2025-10-09', value: '2.4 mg/dL', status: 'critical', referenceRange: '0.7-1.3 mg/dL' }, { test: 'eGFR', date: '2025-10-09', value: '38 mL/min', status: 'critical', referenceRange: '> 60 mL/min' }, { test: 'Potassium', date: '2025-10-09', value: '5.8 mEq/L', status: 'critical', referenceRange: '3.5-5.0 mEq/L' }, { test: 'Hemoglobin', date: '2025-10-09', value: '9.2 g/dL', status: 'abnormal', referenceRange: '13-17 g/dL' }], followUpDate: '2025-10-23' },
+      ],
+      'P007': [
+        { id: 'V007-001', date: '2025-10-10', type: 'Follow-up', facility: 'District Hospital', doctor: 'Dr. P. Reddy', diagnosis: 'COPD Exacerbation + Congestive Heart Failure', symptoms: ['Severe shortness of breath', 'Cough with sputum', 'Leg swelling', 'Fatigue'], vitals: { bp: '130/85 mmHg', pulse: '102 bpm', temperature: '37.5°C', spo2: '88%' }, notes: 'Acute exacerbation. Oxygen started. Diuretics increased. Monitor fluid balance.', prescriptions: [{ medication: 'Furosemide', dosage: '80mg', frequency: 'Twice daily', duration: '14 days', instructions: 'Take morning and afternoon' }, { medication: 'Budesonide + Formoterol', dosage: '160/4.5 mcg', frequency: 'Twice daily', duration: '30 days', instructions: 'Inhale' }], labResults: [{ test: 'BNP', date: '2025-10-10', value: '1850 pg/mL', status: 'critical', referenceRange: '< 100 pg/mL' }, { test: 'Creatinine', date: '2025-10-10', value: '1.8 mg/dL', status: 'abnormal', referenceRange: '0.7-1.3 mg/dL' }, { test: 'Potassium', date: '2025-10-10', value: '5.2 mEq/L', status: 'abnormal', referenceRange: '3.5-5.0 mEq/L' }], followUpDate: '2025-10-17' },
+      ],
+      'P002': [
+        { id: 'V002-001', date: '2025-10-10', type: 'Antenatal Checkup', facility: 'Primary Health Center, Shivpur', doctor: 'Dr. N. Singh', diagnosis: 'Pregnancy - 28 weeks, Low weight gain', symptoms: ['Mild backache', 'Occasional nausea', 'Reduced fetal movement perception'], vitals: { bp: '118/76 mmHg', pulse: '82 bpm', temperature: '36.9°C', weight: '58 kg' }, notes: 'Weight gain below expected. Nutrition counseling provided. Iron and folic acid supplementation ongoing.', prescriptions: [{ medication: 'Iron + Folic Acid', dosage: '100mg/0.5mg', frequency: 'Once daily', duration: 'Until delivery', instructions: 'Take after meals' }, { medication: 'Calcium', dosage: '500mg', frequency: 'Twice daily', duration: 'Until delivery', instructions: 'Take with meals' }], labResults: [{ test: 'Hemoglobin', date: '2025-10-10', value: '10.2 g/dL', status: 'abnormal', referenceRange: '11-13 g/dL' }, { test: 'Urine Albumin', date: '2025-10-10', value: 'Negative', status: 'normal', referenceRange: 'Negative' }, { test: 'Blood Sugar (Random)', date: '2025-10-10', value: '110 mg/dL', status: 'normal', referenceRange: '< 140 mg/dL' }], followUpDate: '2025-10-24' },
+      ],
+      'P004': [
+        { id: 'V004-001', date: '2025-09-28', type: 'Consultation', facility: 'Primary Health Center, Chandanpur', doctor: 'Dr. K. Patel', diagnosis: 'Upper Respiratory Tract Infection', symptoms: ['Fever', 'Cough', 'Runny nose', 'Sore throat'], vitals: { bp: '120/80 mmHg', pulse: '84 bpm', temperature: '38.5°C', weight: '55 kg' }, notes: 'Viral URTI. No signs of pneumonia. Symptomatic treatment advised.', prescriptions: [{ medication: 'Paracetamol', dosage: '500mg', frequency: 'Three times daily', duration: '5 days', instructions: 'Take after meals' }, { medication: 'Cetirizine', dosage: '10mg', frequency: 'Once daily at night', duration: '5 days', instructions: 'Take at bedtime' }], labResults: [], followUpDate: '2025-10-05' },
+      ],
+      'P006': [
+        { id: 'V006-001', date: '2025-10-07', type: 'Follow-up', facility: 'Community Health Center', doctor: 'Dr. R. Gupta', diagnosis: 'Hypothyroidism', symptoms: ['Fatigue', 'Weight gain', 'Cold intolerance', 'Hair loss'], vitals: { bp: '122/82 mmHg', pulse: '68 bpm', temperature: '36.6°C', weight: '68 kg', bmi: '26.8' }, notes: 'TSH slightly elevated. Continue current dose. Repeat thyroid panel in 3 months.', prescriptions: [{ medication: 'Levothyroxine', dosage: '50mcg', frequency: 'Once daily', duration: '30 days', instructions: 'Take on empty stomach, 30 min before breakfast' }], labResults: [{ test: 'TSH', date: '2025-10-07', value: '6.8 mIU/L', status: 'abnormal', referenceRange: '0.4-4.0 mIU/L' }, { test: 'Free T4', date: '2025-10-07', value: '0.8 ng/dL', status: 'normal', referenceRange: '0.8-1.8 ng/dL' }], followUpDate: '2026-01-07' },
+      ],
+      'P008': [
+        { id: 'V008-001', date: '2025-09-15', type: 'Postnatal Checkup', facility: 'Primary Health Center, Temple Road', doctor: 'Dr. N. Singh', diagnosis: 'Postnatal Checkup - Normal Recovery', symptoms: ['Normal'], vitals: { bp: '116/74 mmHg', pulse: '76 bpm', temperature: '36.8°C', weight: '60 kg' }, notes: 'Postnatal recovery on track. Baby healthy. Breastfeeding going well.', prescriptions: [{ medication: 'Calcium + Vitamin D', dosage: '500mg/400 IU', frequency: 'Once daily', duration: '6 months', instructions: 'Take with meals' }], labResults: [], followUpDate: '2025-10-15' },
+      ],
+    };
+
+    const aiInsights = {
+      'P001': { summary: '52-year-old male with poorly controlled Type 2 Diabetes Mellitus and newly diagnosed Hypertension. HbA1c has risen to 8.4% from 7.8% in just 2 weeks, indicating worsening glycemic control. Patient shows signs of early diabetic nephropathy (microalbuminuria). Immediate medication optimization and lifestyle intervention required.', criticalAlerts: ['HbA1c 8.4% — significantly above target (<7.0%). Rapid deterioration from 7.8% (Sep 24) to 8.4% (Oct 8).', 'Microalbuminuria detected (30 mg/L) — early sign of diabetic kidney damage.', 'Blood glucose critically elevated: FBS 145 mg/dL, PPBS 218 mg/dL.', 'Urine albumin positive — requires nephrology input to prevent progression.'], riskFactors: ['Poor dietary compliance reported by patient', 'Age > 50 with uncontrolled diabetes', 'Hypertension not yet controlled on single agent', 'Obesity (BMI 27.4)', 'Family history likely (common in Indian diabetic patients)'], medicationIssues: ['Metformin alone insufficient — needs combination therapy or dose escalation', 'No antihypertensive added yet for BP 145/92', 'Medication adherence questionable given worsening labs', 'Glimepiride added but glycemia still uncontrolled'], chronicConditions: ['Type 2 Diabetes Mellitus', 'Hypertension', 'Overweight (BMI 27.4)'], recommendations: ['Add Telmisartan or ACE inhibitor for BP control and renal protection', 'Increase Metformin to 1000mg twice daily if tolerated', 'Refer to nutritionist for dietary counseling', 'Schedule nephrology consultation for microalbuminuria', 'Advise regular blood glucose monitoring (FBS + PPBS daily)', 'Screen for diabetic retinopathy if not done in past year', 'Consider GLP-1 receptor agonist if glycemia remains uncontrolled', 'Urgent follow-up in 2 weeks (Oct 22) — do not miss'], urgencyScore: 8 },
+      'P003': { summary: '65-year-old male with history of stable CAD, now presented with acute ST-elevation myocardial infarction (STEMI). Thrombolysis administered, currently under cardiac care. Elevated cardiac enzymes confirm infarction. Requires intensive cardiac monitoring and secondary prevention therapy.', criticalAlerts: ['Acute STEMI confirmed — life-threatening emergency', 'Troponin I 15.2 ng/mL (380x above normal) — massive cardiac injury', 'CK-MB 45 U/L (1.8x above normal) — confirms myocardial damage', 'ECG shows ST Elevation — requires immediate intervention', 'High LDL (145 mg/dL) — modifiable risk factor for recurrent events'], riskFactors: ['Age > 60 (highest risk group for cardiac events)', 'Known Coronary Artery Disease', 'Uncontrolled hypertension history', 'Family history of cardiac disease', 'Sedentary lifestyle likely (common in rural elderly)'], medicationIssues: ['No statin prescribed pre-admission — lipid control inadequate', 'Aspirin and Clopidogrel initiated post-MI — appropriate dual antiplatelet therapy', 'Atorvastatin high-dose started — good secondary prevention', 'Beta-blocker not yet started — should be added when hemodynamically stable'], chronicConditions: ['Coronary Artery Disease', 'Hypertension', 'Hyperlipidemia'], recommendations: ['Continue dual antiplatelet therapy (Aspirin + Clopidogrel) for 12 months', 'Add Metoprolol when hemodynamically stable', 'Intensive cardiac rehabilitation program post-discharge', 'Stress test or angiography follow-up in 4-6 weeks', 'Lifestyle modification: low-fat diet, gradual walking program', 'Annual influenza and pneumococcal vaccination', 'Cardiology follow-up every 3 months', 'Emergency education for patient and family on warning signs'], urgencyScore: 10 },
+      'P005': { summary: '48-year-old male with progressive Chronic Kidney Disease (Stage 3b, eGFR 38). Creatinine rising to 2.4 mg/dL with hyperkalemia (K+ 5.8). Hypertension remains uncontrolled. Nephrology referral pending. Risk of progression to Stage 4/5 and dialysis.', criticalAlerts: ['Creatinine 2.4 mg/dL — severely elevated, indicates advanced CKD', 'eGFR 38 mL/min — Stage 3b CKD, kidney function declining', 'Hyperkalemia (5.8 mEq/L) — dangerous, can cause cardiac arrhythmia', 'BP 158/98 — severely uncontrolled, accelerating kidney damage', 'Potassium level requires immediate attention to prevent cardiac events'], riskFactors: ['Uncontrolled hypertension as primary cause', 'Likely diabetic nephropathy (common in Indian CKD)', 'Age > 45 with progressive CKD', 'No nephrology care until now', 'No ACE inhibitor/ARB use yet'], medicationIssues: ['Furosemide dose may be insufficient for volume control', 'ACE inhibitor/ARB not prescribed — would provide renal protection', 'Hyperkalemia management needed — dietary potassium restriction', 'No erythropoietin for anemia (Hb 9.2)'], chronicConditions: ['Chronic Kidney Disease Stage 3b', 'Hypertension', 'Anemia'], recommendations: ['URGENT: Nephrology referral — expedite within 1 week', 'Start Telmisartan 40mg (renal protective, BP control, reduce proteinuria)', 'Dietary potassium restriction counsel — avoid bananas, potatoes, tomatoes', 'Increase Furosemide to 80mg if BP allows', 'Start Erythropoietin for anemia (Hb 9.2)', 'Monitor potassium closely — repeat in 1 week', 'Avoid NSAIDs, contrast agents, nephrotoxic drugs', 'Protein intake moderation (0.6-0.8g/kg/day)', 'Fluid management: restrict to 1.5L/day if edema present'], urgencyScore: 9 },
+      'P007': { summary: '70-year-old male with COPD exacerbation superimposed on Congestive Heart Failure. BNP markedly elevated (1850) indicating severe heart failure. Hypoxemia (SpO2 88%) requires oxygen therapy. Multisystem failure risk — cardiopulmonary interaction critical.', criticalAlerts: ['BNP 1850 pg/mL — indicates severe decompensated heart failure', 'SpO2 88% — severe hypoxemia, immediate oxygen needed', 'Potassium 5.2 mEq/L — elevated (on diuretics, monitor closely)', 'Creatinine 1.8 mg/dL — acute kidney injury likely from diuretic overuse', 'Age 70 with COPD + CHF — high mortality risk'], riskFactors: ['Age > 70 (highest mortality risk)', 'Dual cardiopulmonary disease', 'Acute exacerbation of chronic conditions', 'Possible fluid overload', 'Reduced exercise tolerance'], medicationIssues: ['Diuretic dose doubled — monitor renal function and electrolytes', 'Inhaled corticosteroid + LABA initiated — appropriate for COPD', 'Beta-agonist may be needed for bronchospasm', 'Anticoagulation needed for CHF (no mention of current use)'], chronicConditions: ['COPD', 'Congestive Heart Failure', 'Chronic Kidney Disease'], recommendations: ['Continuous oxygen monitoring — target SpO2 > 92%', 'Daily weight and fluid balance monitoring', 'Add Enalapril or Sacubitril when stable for CHF', 'Start anticoagulation if atrial fibrillation or low EF', 'Pulmonary rehabilitation after stabilization', 'Annual influenza and pneumococcal vaccination', 'Smoking cessation if applicable (critical for COPD)', 'Nutritional support — high protein, low sodium diet', 'Home oxygen assessment for discharge planning', 'Close monitoring of K+ and Creatinine with high-dose diuretics'], urgencyScore: 10 },
+    };
+
+    const defaultInsight = (patient, visits) => {
+      const lastVisit = visits[0];
+      return {
+        summary: lastVisit ? `Patient ${patient.name} (${patient.age} years, ${patient.gender}) with ${lastVisit.diagnosis.toLowerCase()}. Last visited ${lastVisit.facility} on ${lastVisit.date}. ${lastVisit.notes}` : 'No visits recorded yet. Complete initial assessment.',
+        criticalAlerts: ['No critical alerts at this time'],
+        riskFactors: ['Age-related risk factors', 'Lifestyle factors', 'Family history if documented'],
+        medicationIssues: visits.flatMap(v => v.prescriptions).length > 0 ? ['Review medication adherence at next visit'] : ['No current medications'],
+        chronicConditions: [...new Set(visits.map(v => v.diagnosis).slice(0, 3))],
+        recommendations: ['Regular follow-up as scheduled', 'Monitor symptoms and report changes', 'Maintain healthy lifestyle'],
+        urgencyScore: patient.urgencyLevel === 'critical' ? 8 : patient.urgencyLevel === 'high' ? 6 : patient.urgencyLevel === 'medium' ? 4 : 2,
+      };
+    };
+
+    let currentView = 'dashboard';
+    let selectedPatientId = null;
+    let showConsent = false;
+    let searchQuery = '';
+
+    function getInsight(patientId, visits, patient) {
+      return aiInsights[patientId] || defaultInsight(patient, visits);
+    }
+
+    function renderDashboard() {
+      const criticalCount = patients.filter(p => p.urgencyLevel === 'critical').length;
+      const highCount = patients.filter(p => p.urgencyLevel === 'high').length;
+      const filtered = patients.filter(p =>
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.abhaId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.village.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      return `
+        <div class="flex h-screen bg-slate-50">
+          ${renderSidebar()}
+          <main class="flex-1 overflow-y-auto">
+            <header class="bg-white border-b border-slate-200 px-8 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
+                  <p class="text-sm text-slate-600 mt-1">Welcome back, Dr. S. Verma — Primary Health Center, Rampur</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="text-right">
+                    <div class="text-sm font-medium text-slate-900">Today</div>
+                    <div class="text-xs text-slate-600">October 10, 2025</div>
+                  </div>
+                  <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-lg">👨‍⚕️</div>
+                </div>
+              </div>
+            </header>
+            <div class="p-8 fade-in">
+              <div class="grid grid-cols-4 gap-3 mb-6">
+                <div class="bg-white p-4 rounded-lg border border-slate-200">
+                  <div class="text-2xl font-bold text-slate-900">${patients.length}</div>
+                  <div class="text-xs text-slate-600 mt-1">Total Patients</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                  <div class="text-2xl font-bold text-red-700">${criticalCount}</div>
+                  <div class="text-xs text-red-600 mt-1">Critical</div>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                  <div class="text-2xl font-bold text-orange-700">${highCount}</div>
+                  <div class="text-xs text-orange-600 mt-1">High Priority</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <div class="text-2xl font-bold text-blue-700">12</div>
+                  <div class="text-xs text-blue-600 mt-1">Today's Visits</div>
+                </div>
+              </div>
+              <div class="bg-white rounded-lg border border-slate-200">
+                <div class="px-4 py-3 border-b border-slate-200">
+                  <h2 class="text-sm font-semibold text-slate-900">Patient List (${filtered.length})</h2>
+                </div>
+                <div class="divide-y divide-slate-100">
+                  ${filtered.map(patient => renderPatientRow(patient)).join('')}
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      `;
+    }
+
+    function renderPatientRow(patient) {
+      const urgencyBadge = {
+        critical: 'bg-red-600',
+        high: 'bg-orange-500',
+        medium: 'bg-yellow-500',
+        low: 'bg-green-500',
+      };
+      const urgencyText = {
+        critical: 'bg-red-100 text-red-700 border-red-300',
+        high: 'bg-orange-100 text-orange-700 border-orange-300',
+        medium: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+        low: 'bg-green-100 text-green-700 border-green-300',
+      };
+      return `
+        <div onclick="navigateToPatient('${patient.id}')" class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors">
+          <div class="flex items-start gap-3">
+            <div class="relative">
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-sm font-semibold text-blue-700">${patient.avatar}</div>
+              <div class="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white ${urgencyBadge[patient.urgencyLevel]}"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="text-sm font-semibold text-slate-900 truncate">${patient.name}</h3>
+                <span class="text-xs text-slate-500">${patient.age}y</span>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium border ${urgencyText[patient.urgencyLevel]}">${patient.urgencyLevel}</span>
+              </div>
+              <div class="mt-1 flex items-center gap-3 text-xs text-slate-600">
+                <span>ABHA: ${patient.abhaId}</span>
+                <span>•</span>
+                <span>${patient.village}</span>
+              </div>
+              <div class="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                <span>Last visit: ${patient.lastVisit}</span>
+                <span>•</span>
+                <span>${patient.totalVisits} visits</span>
+              </div>
+            </div>
+            <div class="text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSidebar() {
+      return `
+        <div class="w-64 bg-slate-900 text-white flex flex-col h-screen">
+          <div class="p-6 border-b border-slate-700">
+            <div class="flex items-center gap-3 mb-1">
+              <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-xl font-bold">🏥</div>
+              <div>
+                <h1 class="text-lg font-bold">AarogyaAI</h1>
+                <p class="text-xs text-slate-400">Triage Assistant</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="relative">
+              <input type="text" placeholder="Search patients..." value="${searchQuery}" oninput="updateSearch(this.value)" class="w-full px-3 py-2 bg-slate-800 text-white text-sm rounded-lg border border-slate-700 focus:outline-none focus:border-blue-500 placeholder-slate-400">
+            </div>
+          </div>
+          <nav class="flex-1 px-3 py-2 space-y-1">
+            <button onclick="navigateTo('dashboard')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${currentView === 'dashboard' ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}">
+              <span class="text-lg">📊</span> Dashboard
+            </button>
+            <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+              <span class="text-lg">👥</span> Patients
+            </button>
+            <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+              <span class="text-lg">🩺</span> Consultations
+            </button>
+            <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+              <span class="text-lg">📋</span> Reports
+            </button>
+          </nav>
+          <div class="p-4 border-t border-slate-700">
+            <button onclick="showConsentModal()" class="w-full flex items-center gap-2 px-3 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm text-slate-300 transition-colors">
+              <span>🔒</span> Consent Management
+            </button>
+            <div class="mt-3 flex items-center gap-2 px-3 py-2">
+              <div class="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-xs">👨‍⚕️</div>
+              <div class="flex-1">
+                <p class="text-xs font-medium text-white">Dr. S. Verma</p>
+                <p class="text-xs text-slate-400">PHC Rampur</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPatientDetail(patient) {
+      const visits = visitsData[patient.id] || [];
+      const insight = getInsight(patient.id, visits, patient);
+      const statusBadge = (status) => {
+        const colors = { normal: 'bg-green-100 text-green-700', abnormal: 'bg-yellow-100 text-yellow-700', critical: 'bg-red-100 text-red-700' };
+        return colors[status] || 'bg-slate-100 text-slate-700';
+      };
+
+      return `
+        <div class="flex h-screen bg-slate-50">
+          ${renderSidebar()}
+          <main class="flex-1 overflow-y-auto">
+            <header class="bg-white border-b border-slate-200 px-8 py-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h1 class="text-2xl font-bold text-slate-900">Patient Record</h1>
+                  <p class="text-sm text-slate-600 mt-1">ABHA-linked Health Record — AI-Enhanced View</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-sm font-medium border border-red-300">${insight.urgencyScore}/10 Urgency Score</span>
+                </div>
+              </div>
+            </header>
+            <div class="p-8 space-y-6 fade-in">
+              <div class="bg-white rounded-lg border border-slate-200">
+                <div class="px-6 py-4">
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-4">
+                      <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-2xl font-bold text-blue-700">${patient.avatar}</div>
+                      <div>
+                        <h1 class="text-2xl font-bold text-slate-900">${patient.name}</h1>
+                        <div class="mt-1 flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                          <span>${patient.age} years, ${patient.gender}</span>
+                          <span>•</span>
+                          <span>ABHA: ${patient.abhaId}</span>
+                          <span>•</span>
+                          <span>Blood: ${patient.bloodGroup}</span>
+                        </div>
+                        <div class="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                          <span>📱 ${patient.phone}</span>
+                          <span>📍 ${patient.village}</span>
+                          <span>🚨 ${patient.emergencyContact}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              ${insight.criticalAlerts.length > 0 ? `
+              <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                  <div class="text-2xl">🚨</div>
+                  <div class="flex-1">
+                    <h2 class="text-lg font-semibold text-red-900 mb-3">Critical Alerts</h2>
+                    <div class="space-y-2">
+                      ${insight.criticalAlerts.map(alert => `
+                        <div class="flex items-start gap-2 bg-white p-3 rounded border border-red-200">
+                          <span class="text-red-600 mt-0.5">●</span>
+                          <p class="text-sm text-red-900">${alert}</p>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              ` : ''}
+
+              <div class="bg-white rounded-lg border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">AI-Generated Summary</h2>
+                <p class="text-sm text-slate-700 leading-relaxed">${insight.summary}</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white rounded-lg border border-slate-200 p-5">
+                  <h3 class="text-sm font-semibold text-slate-900 mb-3">Risk Factors</h3>
+                  <div class="space-y-2">
+                    ${insight.riskFactors.map(risk => `
+                      <div class="flex items-start gap-2">
+                        <span class="text-orange-500 mt-0.5">⚠️</span>
+                        <p class="text-sm text-slate-700">${risk}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+                <div class="bg-white rounded-lg border border-slate-200 p-5">
+                  <h3 class="text-sm font-semibold text-slate-900 mb-3">Chronic Conditions</h3>
+                  <div class="space-y-2">
+                    ${insight.chronicConditions.map(condition => `
+                      <div class="flex items-start gap-2">
+                        <span class="text-blue-500 mt-0.5">🏥</span>
+                        <p class="text-sm text-slate-700">${condition}</p>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg border border-slate-200 p-6">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Recommendations</h2>
+                <div class="grid grid-cols-1 gap-2">
+                  ${insight.recommendations.map((rec, idx) => `
+                    <div class="flex items-start gap-3 p-3 bg-blue-50 rounded border border-blue-100">
+                      <span class="text-blue-600 font-bold">${idx + 1}.</span>
+                      <p class="text-sm text-slate-700">${rec}</p>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg border border-slate-200">
+                <div class="px-6 py-4 border-b border-slate-200">
+                  <h2 class="text-lg font-semibold text-slate-900">Visit History (${visits.length} visits)</h2>
+                </div>
+                <div class="divide-y divide-slate-100">
+                  ${visits.map(visit => renderVisitCard(visit, statusBadge)).join('')}
+                </div>
+              </div>
+
+              <button onclick="showConsentModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors">
+                🔒 Manage ABHA Consent & Privacy
+              </button>
+
+              <div class="bg-white rounded-lg border border-slate-200 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4">Allergies & Safety</h3>
+                <div class="flex flex-wrap gap-2">
+                  ${patient.allergies.map(allergy => `
+                    <span class="px-3 py-2 bg-yellow-100 text-yellow-900 rounded-lg border border-yellow-300 font-medium">⚠️ ${allergy}</span>
+                  `).join('')}
+                </div>
+                <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p class="text-sm text-red-800 font-medium">Emergency Contact: ${patient.emergencyContact}</p>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      `;
+    }
+
+    function renderVisitCard(visit, statusBadge) {
+      return `
+        <div class="p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-center gap-3 mb-2">
+                <h3 class="text-sm font-semibold text-slate-900">${visit.type}</h3>
+                <span class="text-xs text-slate-500">${visit.date}</span>
+                <span class="text-xs text-slate-500">•</span>
+                <span class="text-xs text-slate-500">${visit.facility}</span>
+              </div>
+              <p class="text-sm text-slate-700 font-medium">${visit.diagnosis}</p>
+              <div class="mt-2 flex flex-wrap gap-1">
+                ${visit.symptoms.map(s => `<span class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs">${s}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 space-y-4">
+            <div>
+              <h4 class="text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Vitals</h4>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                ${Object.entries(visit.vitals).filter(([k, v]) => v).map(([key, value]) => `
+                  <div class="bg-slate-50 p-2 rounded border border-slate-200">
+                    <div class="text-xs text-slate-600 capitalize">${key}</div>
+                    <div class="text-sm font-medium text-slate-900 mt-0.5">${value}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ${visit.prescriptions.length > 0 ? `
+            <div>
+              <h4 class="text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Prescriptions</h4>
+              <div class="space-y-2">
+                ${visit.prescriptions.map(rx => `
+                  <div class="flex items-center justify-between p-3 bg-blue-50 rounded border border-blue-100">
+                    <div>
+                      <div class="text-sm font-medium text-slate-900">${rx.medication}</div>
+                      <div class="text-xs text-slate-600 mt-0.5">${rx.dosage} • ${rx.frequency} • ${rx.duration}</div>
+                      <div class="text-xs text-slate-500 mt-0.5">${rx.instructions}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+            ${visit.labResults.length > 0 ? `
+            <div>
+              <h4 class="text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Lab Results</h4>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-b border-slate-200">
+                      <th class="text-left py-2 px-3 text-xs font-semibold text-slate-700">Test</th>
+                      <th class="text-left py-2 px-3 text-xs font-semibold text-slate-700">Date</th>
+                      <th class="text-left py-2 px-3 text-xs font-semibold text-slate-700">Value</th>
+                      <th class="text-left py-2 px-3 text-xs font-semibold text-slate-700">Reference</th>
+                      <th class="text-left py-2 px-3 text-xs font-semibold text-slate-700">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${visit.labResults.map(lab => `
+                      <tr class="border-b border-slate-100">
+                        <td class="py-2 px-3 text-slate-900">${lab.test}</td>
+                        <td class="py-2 px-3 text-slate-600">${lab.date}</td>
+                        <td class="py-2 px-3 font-medium text-slate-900">${lab.value}</td>
+                        <td class="py-2 px-3 text-slate-600">${lab.referenceRange}</td>
+                        <td class="py-2 px-3"><span class="px-2 py-1 rounded-full text-xs font-medium ${statusBadge(lab.status)}">${lab.status}</span></td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            ` : ''}
+            ${visit.notes ? `
+            <div>
+              <h4 class="text-xs font-semibold text-slate-700 mb-2 uppercase tracking-wide">Doctor's Notes</h4>
+              <p class="text-sm text-slate-700 bg-yellow-50 p-3 rounded border border-yellow-200">${visit.notes}</p>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderConsentModal() {
+      if (!showConsent) return '';
+      const patient = selectedPatientId ? patients.find(p => p.id === selectedPatientId) : null;
+      return `
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h2 class="text-xl font-bold text-slate-900">Consent & Privacy Management</h2>
+              <button onclick="hideConsentModal()" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">×</button>
+            </div>
+            <div class="p-6 space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold text-slate-900 mb-3">${patient ? patient.name : 'Patient'} (${patient ? patient.abhaId : ''})</h3>
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 class="text-sm font-semibold text-blue-900 mb-2">ABHA Consent Framework</h4>
+                  <p class="text-sm text-blue-800">This patient has provided consent for access to their health records through the Ayushman Bharat Digital Health Mission (ABDM) framework. All access is logged and auditable.</p>
+                </div>
+              </div>
+              <div class="space-y-3">
+                <h4 class="text-sm font-semibold text-slate-900">Consent Status</h4>
+                ${[
+                  { label: 'Health Record Access', status: 'Active' },
+                  { label: 'Diagnostic Data Sharing', status: 'Active' },
+                  { label: 'Medication History Access', status: 'Active' },
+                  { label: 'Research Participation', status: 'Declined' },
+                  { label: 'SMS/Notification', status: 'Active' },
+                ].map(item => `
+                  <div class="flex items-center justify-between p-3 bg-slate-50 rounded border border-slate-200">
+                    <span class="text-sm text-slate-700">${item.label}</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium ${item.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${item.status}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-slate-900 mb-3">Access Log</h4>
+                <div class="space-y-2">
+                  ${[
+                    { date: '2025-10-10', doctor: 'Dr. S. Verma', action: 'Viewed full record', ip: '10.0.1.45' },
+                    { date: '2025-10-08', doctor: 'Dr. S. Verma', action: 'Updated consultation notes', ip: '10.0.1.45' },
+                    { date: '2025-09-24', doctor: 'Dr. S. Verma', action: 'Viewed lab results', ip: '10.0.1.45' },
+                    { date: '2025-09-10', doctor: 'Dr. R. Gupta', action: 'Accessed via referral', ip: '10.0.2.12' },
+                  ].map(log => `
+                    <div class="flex items-center gap-4 p-2 bg-slate-50 rounded text-xs">
+                      <span class="text-slate-600 w-28">${log.date}</span>
+                      <span class="text-slate-900 font-medium w-40">${log.doctor}</span>
+                      <span class="text-slate-700 flex-1">${log.action}</span>
+                      <span class="text-slate-500">${log.ip}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h4 class="text-sm font-semibold text-yellow-900 mb-2">Privacy & Compliance Notes</h4>
+                <ul class="space-y-1 text-xs text-yellow-800 list-disc list-inside">
+                  <li>All access is logged per ABDM guidelines</li>
+                  <li>Records are accessed only with patient consent</li>
+                  <li>Data is encrypted in transit and at rest</li>
+                  <li>Access is limited to treating physicians only</li>
+                  <li>Patients can revoke consent at any time</li>
+                </ul>
+              </div>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+              <button onclick="hideConsentModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 rounded-lg text-sm font-medium transition-colors">Close</button>
+              <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">Modify Consent</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function navigateToPatient(patientId) {
+      selectedPatientId = patientId;
+      currentView = 'patient';
+      render();
+    }
+
+    function navigateTo(view) {
+      currentView = view;
+      render();
+    }
+
+    function showConsentModal() {
+      showConsent = true;
+      render();
+    }
+
+    function hideConsentModal() {
+      showConsent = false;
+      render();
+    }
+
+    function updateSearch(value) {
+      searchQuery = value;
+      currentView = 'dashboard';
+      render();
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+      if (currentView === 'dashboard') {
+        app.innerHTML = renderDashboard();
+      } else if (currentView === 'patient') {
+        const patient = patients.find(p => p.id === selectedPatientId);
+        app.innerHTML = patient ? renderPatientDetail(patient) : renderDashboard();
+      }
+      if (showConsent) {
+        const consentDiv = document.createElement('div');
+        consentDiv.id = 'consent-overlay';
+        consentDiv.innerHTML = renderConsentModal();
+        document.body.appendChild(consentDiv);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
