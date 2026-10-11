@@ -52,7 +52,7 @@ export interface LabResult {
   test: string;
   date: string;
   value: string;
-  unit: string;
+  unit?: string;
   status: 'normal' | 'abnormal' | 'critical';
   referenceRange: string;
 }
