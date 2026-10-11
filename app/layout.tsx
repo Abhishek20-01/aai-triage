@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
-import Sidebar from '@/components/Sidebar'
 
 export const metadata: Metadata = {
-  title: 'AarogyaAI Triage - Patient Detail',
-  description: 'AI-powered diagnostic triage assistant',
+  title: 'AarogyaAI Triage',
+  description: 'AI-powered diagnostic triage assistant for Ayushman Bharat Health Records',
 }
 
 export default function RootLayout({
@@ -13,9 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

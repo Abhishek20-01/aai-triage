@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
-import { patients, visitsData, generateAIInsight, Visit, LabResult } from '@/data/patients'
+import { patients, visitsData, Visit, LabResult } from '@/data/patients'
+import { generateAIInsight } from '@/lib/ai-insights'
 
 const statusBadge = (status: LabResult['status']) => {
   const colors = {

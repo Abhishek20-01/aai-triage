@@ -1,17 +1,16 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useState } from 'react'
 import Sidebar from '@/components/Sidebar'
 import PatientList from '@/components/PatientList'
 import { patients } from '@/data/patients'
 
-export const metadata: Metadata = {
-  title: 'AarogyaAI Triage - Dashboard',
-  description: 'AI-powered diagnostic triage assistant for Ayushman Bharat Health Records',
-}
-
 export default function Home() {
+  const [showConsent, setShowConsent] = useState(false)
+
   return (
     <div className="flex h-screen bg-slate-50">
-      <Sidebar />
+      <Sidebar onConsentClick={() => setShowConsent(true)} />
       <main className="flex-1 overflow-y-auto">
         <header className="bg-white border-b border-slate-200 px-8 py-4">
           <div className="flex items-center justify-between">
