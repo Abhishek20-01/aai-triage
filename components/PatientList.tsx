@@ -61,7 +61,7 @@ export default function PatientList() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Today's Visits</p>
+              <p className="text-sm font-medium text-gray-600">Today&apos;s Visits</p>
               <p className="text-3xl font-bold text-blue-600 mt-2">12</p>
             </div>
             <div className="text-4xl">📅</div>

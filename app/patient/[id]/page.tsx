@@ -404,7 +404,7 @@ function VisitCard({ visit, expanded, onToggle }: { visit: Visit; expanded: bool
           {visit.notes && (
             <div>
               <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-                Doctor's Clinical Notes
+                Doctor&apos;s Clinical Notes
               </h4>
               <p className="text-sm text-gray-700 bg-yellow-50 p-4 rounded-lg border border-yellow-200 italic">
                 {visit.notes}

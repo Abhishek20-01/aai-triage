@@ -1,4 +1,5 @@
-import { patients, visitsData, generateAIInsight } from '@/data/patients'
+import { patients, visitsData } from '@/data/patients'
+import { generateAIInsight } from '@/lib/ai-insights'
 
 export async function GET(
   request: Request,
